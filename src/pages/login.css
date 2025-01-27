@@ -1,0 +1,11 @@
+.btn1 {
+    background-color: #01AB87ff;
+    color: #0A2F5Dff;
+    padding: 8px 20px;
+    border: 1px solid var(--primary);
+    transition: all 0.3s ease-out;
+}
+
+.container {
+    font-family: "Haas Grot Text R Web", "Helvetica Neue", Helvetica, Arial, sans-serif;
+}

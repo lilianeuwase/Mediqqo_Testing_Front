@@ -1,0 +1,183 @@
+/* CSS */
+
+.button-1 {
+    background-color: #01ab87ff;
+    border-radius: 8px;
+    border-style: none;
+    box-sizing: border-box;
+    color: #ffffff;
+    cursor: pointer;
+    display: inline-block;
+    font-family: "Haas Grot Text R Web", "Helvetica Neue", Helvetica, Arial, sans-serif;
+    font-size: 14px;
+    font-weight: 500;
+    height: 40px;
+    line-height: 20px;
+    list-style: none;
+    margin: 0;
+    outline: none;
+    padding: 10px 16px;
+    position: relative;
+    text-align: center;
+    text-decoration: none;
+    transition: color 100ms;
+    vertical-align: baseline;
+    user-select: none;
+    -webkit-user-select: none;
+    touch-action: manipulation;
+}
+
+.button-2 {
+    background-color: #01ab87ff;
+    border-radius: 6px;
+    border-style: none;
+    box-sizing: border-box;
+    color: #ffffff;
+    cursor: pointer;
+    display: inline-block;
+    font-family: "Haas Grot Text R Web", "Helvetica Neue", Helvetica, Arial, sans-serif;
+    font-size: 14px;
+    font-weight: 500;
+    height: 25px;
+    line-height: 20px;
+    list-style: none;
+    margin: 0;
+    outline: none;
+    padding: 0px 6px;
+    position: relative;
+    text-align: center;
+    text-decoration: none;
+    transition: color 100ms;
+    vertical-align: baseline;
+    user-select: none;
+    -webkit-user-select: none;
+    touch-action: manipulation;
+}
+
+.button-3 {
+    background-color: #0a2f5dff;
+    border-radius: 8px;
+    border-style: none;
+    box-sizing: border-box;
+    color: #ffffff;
+    cursor: pointer;
+    display: inline-block;
+    font-family: "Haas Grot Text R Web", "Helvetica Neue", Helvetica, Arial, sans-serif;
+    font-size: 14px;
+    font-weight: 500;
+    height: 40px;
+    line-height: 20px;
+    list-style: none;
+    margin: 0;
+    outline: none;
+    padding: 10px 16px;
+    position: relative;
+    text-align: center;
+    text-decoration: none;
+    transition: color 100ms;
+    vertical-align: baseline;
+    user-select: none;
+    -webkit-user-select: none;
+    touch-action: manipulation;
+    width: 150px;
+    left: 35%;
+}
+
+.button-1:hover,
+.button-2:hover,
+.button-1:focus {
+    background-color: rgb(100, 165, 151);
+}
+
+.button-3:hover,
+.button-3:focus {
+    background-color: rgb(45, 80, 122);
+}
+
+.button-small {
+    background-color: #01ab87ff;
+    border-radius: 8px;
+    border-color: #0a2f5dff;
+    box-sizing: border-box;
+    width: 250px;
+    color: #ffffff;
+    cursor: pointer;
+    display: inline-block;
+    font-family: "Haas Grot Text R Web", "Helvetica Neue", Helvetica, Arial, sans-serif;
+    font-size: 14px;
+    font-weight: 500;
+    height: 40px;
+    line-height: 20px;
+    list-style: none;
+    margin: 0;
+    outline: none;
+    padding: 10px 16px;
+    position: relative;
+    text-align: center;
+    text-decoration: none;
+    transition: color 100ms;
+    vertical-align: baseline;
+    user-select: none;
+    -webkit-user-select: none;
+    touch-action: manipulation;
+    left: 50%;
+    -ms-transform: translate(-50%, -50%);
+    transform: translate(-50%, -50%);
+}
+
+:root {
+    --primary: #4ca8a1;
+}
+
+.btn {
+    padding: 8px 20px;
+    border-radius: 2px;
+    outline: none;
+    border: none;
+    cursor: pointer;
+}
+
+.btn--primary {
+    background-color: var(--primary);
+    color: white;
+    border: 1px solid var(--primary);
+    background-color: #4ca8a1;
+}
+
+.btn--outline {
+    background-color: transparent;
+    color: #e85a4f;
+    padding: 8px 20px;
+    border: 1px solid var(--primary);
+    transition: all 0.3s ease-out;
+    bottom: 5px;
+}
+
+.btn--medium {
+    padding: 8px 20px;
+    font-size: 18px;
+}
+
+.btn--large {
+    padding: 12px 26px;
+    font-size: 20px;
+}
+
+.btn--medium:hover {
+    transition: all 0.3s ease-out;
+    background: #4ca8a1;
+    color: #fff;
+    transition: 250ms;
+}
+
+.btn--large:hover {
+    transition: all 0.3s ease-out;
+    background: #4ca8a1;
+    color: #fff;
+    transition: 250ms;
+}
+
+.btn--outline:hover {
+    background-color: #01ab87ff;
+    color: #ffff;
+}
