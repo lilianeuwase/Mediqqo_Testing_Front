@@ -57,7 +57,7 @@ export default function HypertensionConsult(props) {
             mx="auto"
             textAlign="start"
           >
-            This section is designed for individuals suspected of having Hyper or Hypo tension.
+            {/* This section is designed for individuals suspected of having Hyper or Hypo tension. */}
           </Text>
           <Flex w="100%">
             <Link

@@ -5,7 +5,7 @@ import Card from "../../../../components/card/Card";
 import React from "react";
 
 export default function Information(props) {
-  const { title, value, valuebar, ...rest } = props;
+  const { title, value, valuebar, barcolor, ...rest } = props;
   // Chakra Color Mode
   const textColorPrimary = useColorModeValue("secondaryGray.900", "white");
   const textColorSecondary = "gray.400";
@@ -21,7 +21,7 @@ export default function Information(props) {
           <Flex align="center">
             <Progress
               variant="table"
-              colorScheme="brandScheme"
+              colorScheme={barcolor}
               h="8px"
               w="108px"
               value={valuebar}

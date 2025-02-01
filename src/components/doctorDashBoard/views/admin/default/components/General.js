@@ -12,14 +12,26 @@ export default function GeneralInformation(props) {
     diabfemales,
     diabmvaluebar,
     diabfvaluebar,
+    diabhiv,
+    diabhivvaluebar,
+    diabhtn,
+    diabhtnvaluebar,
     hypermales,
     hyperfemales,
     hypermvaluebar,
     hyperfvaluebar,
+    hyperhiv,
+    hyperhivvaluebar,
+    hyperkd,
+    hyperkdvaluebar,
     asthmamales,
     asthmafemales,
     asthmamvaluebar,
     asthmafvaluebar,
+    asthmaobese,
+    asthmaobesevaluebar,
+    asthmahiv,
+    asthmahivvaluebar,
     ...rest
   } = props;
 
@@ -42,7 +54,7 @@ export default function GeneralInformation(props) {
         Patients Numbers
       </Text>
 
-      <SimpleGrid columns="2" gap="20px">
+      <SimpleGrid columns="4" gap="20px">
         <Information
           boxShadow={cardShadow}
           value={diabmales}
@@ -57,27 +69,71 @@ export default function GeneralInformation(props) {
         />
         <Information
           boxShadow={cardShadow}
+          value={diabhiv}
+          valuebar={diabhivvaluebar}
+          title="Diabetic HIV"
+        />
+        <Information
+          boxShadow={cardShadow}
+          value={diabhtn}
+          valuebar={diabhtnvaluebar}
+          title="Diabetic Hypertensive"
+        />
+        <Information
+          barcolor="orange"
+          boxShadow={cardShadow}
           value={hypermales}
           valuebar={hypermvaluebar}
           title="Hypertensive Males"
         />
         <Information
+          barcolor="orange"
           boxShadow={cardShadow}
           value={hyperfemales}
           valuebar={hyperfvaluebar}
           title="Hypertensive Females"
         />
         <Information
+          barcolor="orange"
+          boxShadow={cardShadow}
+          value={hyperhiv}
+          valuebar={hyperhivvaluebar}
+          title="Hypertensive HIV"
+        />
+        <Information
+          barcolor="orange"
+          boxShadow={cardShadow}
+          value={hyperkd}
+          valuebar={hyperkdvaluebar}
+          title="Hypertensive Kidney Disease"
+        />
+        <Information
+          barcolor="brandScheme"
           boxShadow={cardShadow}
           value={asthmamales}
           valuebar={asthmamvaluebar}
           title="Asthmatic Males"
         />
         <Information
+          barcolor="brandScheme"
           boxShadow={cardShadow}
           value={asthmafemales}
           valuebar={asthmafvaluebar}
           title="Asthmatic Females"
+        />
+        <Information
+          barcolor="brandScheme"
+          boxShadow={cardShadow}
+          value={asthmaobese}
+          valuebar={asthmaobesevaluebar}
+          title="Asthmatic Obese"
+        />
+        <Information
+          barcolor="brandScheme"
+          boxShadow={cardShadow}
+          value={asthmahiv}
+          valuebar={asthmahivvaluebar}
+          title="Asthmatic HIV"
         />
       </SimpleGrid>
     </Card>

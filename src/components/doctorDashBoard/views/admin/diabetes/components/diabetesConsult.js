@@ -68,8 +68,8 @@ export default function DiabetesConsult(props) {
             mx="auto"
             textAlign="start"
           >
-            This section is designed for individuals suspected of having Type I
-            or Type II Diabetes.
+            {/* This section is designed for individuals suspected of having Type I
+            or Type II Diabetes. */}
           </Text>
           <Flex w="100%">
             <Link

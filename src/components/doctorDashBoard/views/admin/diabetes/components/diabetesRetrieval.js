@@ -59,7 +59,7 @@ export default function DiabetesRetrieval() {
         fontWeight="700"
         lineHeight={{ base: "32px", md: "42px" }}
       >
-        Diabetes Patients Retriaval System
+        Diabetes Patient Check
       </Text>
       <Text
         fontSize="md"
@@ -68,7 +68,7 @@ export default function DiabetesRetrieval() {
         mb="20px"
         lineHeight="28px"
       >
-        Find or Reconsult Existing Patient
+        Find Existing Patient
       </Text>
       <form onSubmit={handleSubmit}>
         <Input

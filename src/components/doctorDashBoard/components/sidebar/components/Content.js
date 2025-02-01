@@ -11,7 +11,7 @@ import React from "react";
 function SidebarContent(props) {
   const { routes } = props;
   const filteredRoutes = routes.filter(
-    (route) => route.name === 'Main Dashboard' || route.name === 'Diabetes' || route.name === 'Hypertension' || route.name === 'Asthma'|| route.name === 'Support'
+    (route) => route.name === 'NCD Clinic' || route.name === 'Diabetes' || route.name === 'Hypertension' || route.name === 'Asthma'|| route.name === 'Support'
   );
   // SIDEBAR
   return (

@@ -210,7 +210,7 @@ export const barChartOptionsConsumption = {
 
 export const pieChartOptions = {
   labels: ["Diabetes", "Hypertension", "Asthma"],
-  colors: ["#4318FF", "#6AD2FF", "#12c9bb"],
+  colors: ["#4318FF", "#fa9500", "#12c9bb"],
   chart: {
     width: "50px",
   },
@@ -239,7 +239,7 @@ export const pieChartOptions = {
     },
   },
   fill: {
-    colors: ["#4318FF", "#6AD2FF", "#12c9bb"],
+    colors: ["#4318FF", "#fa9500", "#12c9bb"],
   },
   tooltip: {
     enabled: true,

@@ -59,7 +59,7 @@ export default function AsthmaRetrieval() {
         fontWeight="700"
         lineHeight={{ base: "32px", md: "42px" }}
       >
-        Asthma Patients Retriaval System
+        Asthma Patient Check
       </Text>
       <Text
         fontSize="md"
@@ -68,7 +68,7 @@ export default function AsthmaRetrieval() {
         mb="20px"
         lineHeight="28px"
       >
-        Find or Reconsult Existing Patient
+        Find Existing Patient
       </Text>
       <form onSubmit={handleSubmit}>
         <Input

@@ -19,9 +19,13 @@ import RTL from './views/admin/rtl';
 import Diabetes from './views/admin/diabetes';
 import Profile from './views/admin/diabetes/new/profile';
 
+//Clinic
+// import { UserData } from "../../DBConnection/UserData";
+// const MainDashboard_name = "NCD Clinic" + "   |   " + UserData().hospital;
+
 const routes = [
   {
-    name: 'Main Dashboard',
+    name: 'NCD Clinic',
     layout: '/admin',
     path: '/default',
     icon: <Icon as={MdHome} width="20px" height="20px" color="inherit" />,

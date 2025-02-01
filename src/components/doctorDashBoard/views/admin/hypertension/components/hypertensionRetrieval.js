@@ -59,7 +59,7 @@ export default function HypertensionRetrieval() {
         fontWeight="700"
         lineHeight={{ base: "32px", md: "42px" }}
       >
-        Hypertension Patients Retriaval System
+        Hypertension Patient Check
       </Text>
       <Text
         fontSize="md"
@@ -68,7 +68,7 @@ export default function HypertensionRetrieval() {
         mb="20px"
         lineHeight="28px"
       >
-        Find or Reconsult Existing Patient
+        Find Existing Patient
       </Text>
       <form onSubmit={handleSubmit}>
         <Input

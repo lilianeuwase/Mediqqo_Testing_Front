@@ -57,7 +57,7 @@ export default function AsthmaConsult(props) {
             mx="auto"
             textAlign="start"
           >
-            This section is designed for individuals suspected of having Asthma.
+            {/* This section is designed for individuals suspected of having Asthma. */}
           </Text>
           <Flex w="100%">
             <Link
