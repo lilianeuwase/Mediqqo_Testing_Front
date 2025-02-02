@@ -17,7 +17,7 @@ import RTL from './views/admin/rtl';
 
 //Diabetes
 import Diabetes from './views/admin/diabetes';
-import Profile from './views/admin/diabetes/new/profile';
+import NewDiab from './views/admin/diabetes/new/newDiab';
 
 //Clinic
 // import { UserData } from "../../DBConnection/UserData";
@@ -45,7 +45,7 @@ const routes = [
     layout: '/admin',
     icon: <Icon as={MdFilter1} width="20px" height="20px" color="inherit" />,
     path: '/diabetes/newconsult',
-    component: <Profile/>,
+    component: <NewDiab/>,
   },
 
   {

@@ -31,6 +31,7 @@ import DiabConsTable from "./components/NCDs/diabetes/reconsult/patients/diabCon
 import OldHyperPatientDetails2 from "./components/NCDs/hypertension/reconsult/patients/oldHyperPatientDetails2";
 import OldAsthmaPatientDetails2 from "./components/NCDs/asthma/reconsult/patients/oldAsthmaPatientDetails2";
 import {UserData} from "./DBConnection/UserData";
+import MultiStepForm from "./pages/testPage";
 
 function App() {
   const isLoggedIn = window.localStorage.getItem("loggedIn");
@@ -164,7 +165,7 @@ function App() {
             element={isLoggedIn == "true" ? <AsthmaResults /> : <Login />}
           />
           {/* For View Purposes */}
-          <Route path="/view" element={<UserData />} />
+          <Route path="/view" element={<MultiStepForm />} />
         </Routes>
         {/* <Footer /> */}
       </div>

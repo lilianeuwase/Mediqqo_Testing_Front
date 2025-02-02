@@ -19,7 +19,7 @@ import UserDetails from "./components/userDetails";
 
 //Customized Links
 import SignInCentered from "./components/doctorDashBoard/views/auth/signIn";
-import Profile from "./components/doctorDashBoard/views/admin/diabetes/new/profile";
+
 
 function AppUpdate() {
   const isLoggedIn = window.localStorage.getItem("loggedIn");
