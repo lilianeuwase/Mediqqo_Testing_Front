@@ -5,8 +5,7 @@ import { BrowserRouter as Router, Routes, Route } from "react-router-dom";
 import Login from "./pages/login";
 import UserDetails from "./components/userDetails";
 import OldConsult from "./pages/oldConsult";
-import AddUser from "./pages/addUser";
-import Footer from "./components/footer";
+// import AddUser from "./pages/addUser";
 import NewConsult from "./pages/newConsult";
 import Diabetes from "../src/components/NCDs/diabetes/diabetes";
 import DiabResults from "../src/components/NCDs/diabetes/diabResults";
@@ -30,8 +29,7 @@ import OldPatientDetails2 from "./components/NCDs/diabetes/reconsult/patients/ol
 import DiabConsTable from "./components/NCDs/diabetes/reconsult/patients/diabConsTable";
 import OldHyperPatientDetails2 from "./components/NCDs/hypertension/reconsult/patients/oldHyperPatientDetails2";
 import OldAsthmaPatientDetails2 from "./components/NCDs/asthma/reconsult/patients/oldAsthmaPatientDetails2";
-import {UserData} from "./DBConnection/UserData";
-import MultiStepForm from "./pages/testPage";
+import PatientVitalSigns from "./components/dashBoards/doctor/views/admin/diabetes/new/patientVitalSigns";
 
 function App() {
   const isLoggedIn = window.localStorage.getItem("loggedIn");
@@ -50,10 +48,10 @@ function App() {
             path="/sign-in"
             element={isLoggedIn == "true" ? <UserDetails /> : <Login />}
           />
-          <Route
+          {/* <Route
             path="/adduser"
             element={isLoggedIn && isAdmin == "true" ? <AddUser /> : <Login />}
-          />
+          /> */}
           <Route
             path="/userDetails"
             element={isLoggedIn == "true" ? <UserDetails /> : <Login />}
@@ -165,7 +163,7 @@ function App() {
             element={isLoggedIn == "true" ? <AsthmaResults /> : <Login />}
           />
           {/* For View Purposes */}
-          <Route path="/view" element={<MultiStepForm />} />
+          {/* <Route path="/view" element={<PatientVitalSigns />} /> */}
         </Routes>
         {/* <Footer /> */}
       </div>

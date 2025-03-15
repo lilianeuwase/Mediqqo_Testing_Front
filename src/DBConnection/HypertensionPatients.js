@@ -17,6 +17,7 @@ export function HypertensionPatients() {
   function getPaginatedPatients() {
     fetch(
       `https://mediqo-api.onrender.com/paginatedHyperPatients?page=${currentPage.current}&limit=${limit}`,
+      // `http://localhost:3001/paginatedHyperPatients?page=${currentPage.current}&limit=${limit}`,
       {
         method: "GET",
       }

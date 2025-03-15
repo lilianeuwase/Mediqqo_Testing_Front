@@ -17,6 +17,7 @@ export function AsthmaPatients() {
   function getPaginatedPatients() {
     fetch(
       `https://mediqo-api.onrender.com/paginatedAsthmaPatients?page=${currentPage.current}&limit=${limit}`,
+      // `http://localhost:3001/paginatedAsthmaPatients?page=${currentPage.current}&limit=${limit}`,
       {
         method: "GET",
       }

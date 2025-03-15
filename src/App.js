@@ -1,4 +1,4 @@
-import "../src/components/doctorDashBoard/assets/css/AppUser.css";
+import "../src/components/dashBoards/doctor/assets/css/AppUser.css";
 import React from "react";
 import { BrowserRouter as Router, Routes, Route } from "react-router-dom";
 
@@ -6,19 +6,19 @@ import {
   ChakraProvider,
   // extendTheme
 } from "@chakra-ui/react";
-import "../src/components/doctorDashBoard/assets/css/AppUser.css";
+import "../src/components/dashBoards/doctor/assets/css/AppUser.css";
 import { Navigate } from "react-router-dom";
 import {} from "react-router-dom";
-import AuthLayout from "./components/doctorDashBoard/layouts/auth";
-import AdminLayout from "./components/doctorDashBoard/layouts/admin";
-import RTLLayout from "./components/doctorDashBoard/layouts/rtl";
-import initialTheme from "./components/doctorDashBoard/theme/theme"; //  { themeGreen }
+import AuthLayout from "./components/dashBoards/doctor/layouts/auth";
+import AdminLayout from "./components/dashBoards/doctor/layouts/admin";
+import RTLLayout from "./components/dashBoards/doctor/layouts/rtl";
+import initialTheme from "./components/dashBoards/doctor/theme/theme"; //  { themeGreen }
 import { useState } from "react";
 import HomePage from "./pages/homepage";
 import UserDetails from "./components/userDetails";
 
 //Customized Links
-import SignInCentered from "./components/doctorDashBoard/views/auth/signIn";
+import SignInCentered from "./components/dashBoards/doctor/views/auth/signIn";
 
 
 function AppUpdate() {

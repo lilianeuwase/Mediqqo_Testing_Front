@@ -1,106 +1,66 @@
-import { useState } from "react";
+import React, { useState } from "react";
 
-const MultiStepForm = () => {
-  const [step, setStep] = useState(1);
-  const [formData, setFormData] = useState({
-    name: "",
-    location: "",
-  });
-  const [errors, setErrors] = useState({});
+function RoleRedirect() {
+  const [role, setRole] = useState("");
 
-  // Handle Input Change
-  const handleChange = (e) => {
-    setFormData({ ...formData, [e.target.name]: e.target.value });
-    setErrors({ ...errors, [e.target.name]: "" }); // Clear errors when typing
-  };
+  const handleSubmit = (e) => {
+    e.preventDefault();
+    const roleLower = role.toLowerCase().trim();
 
-  // Validate Form Fields
-  const validate = () => {
-    let newErrors = {};
-    if (step === 1 && !formData.name.trim()) newErrors.name = "First name is required.";
-    if (step === 2 && !formData.location.trim()) newErrors.location = "Location is required.";
-    setErrors(newErrors);
-    return Object.keys(newErrors).length === 0; // Returns true if no errors
-  };
-
-  // Move to Next Step (only if valid)
-  const nextStep = () => {
-    if (validate()) setStep(step + 1);
-  };
-
-  // Move to Previous Step
-  const prevStep = () => {
-    setStep(step - 1);
-  };
-
-  // Submit Data
-  const handleSubmit = async () => {
-    if (!validate()) return;
-
-    const response = await fetch("http://your-api-endpoint.com/save", {
-      method: "POST",
-      headers: { "Content-Type": "application/json" },
-      body: JSON.stringify(formData),
-    });
-
-    if (response.ok) {
-      alert("Data saved successfully!");
+    if (roleLower === "admin") {
+      window.location.href = "/admin";
+    } else if (roleLower === "doctor") {
+      window.location.href = "/doctor";
+    } else if (roleLower === "nurse") {
+      window.location.href = "/nurse";
     } else {
-      alert("Error saving data.");
+      alert("Role not recognized! Please enter admin, doctor, or nurse.");
     }
   };
 
   return (
-    <div className="p-4 max-w-md mx-auto bg-white shadow-lg rounded-lg">
-      {step === 1 && (
-        <div>
-          <h2 className="text-xl font-bold mb-4">Step 1: Enter First Name</h2>
-          <input
-            type="text"
-            name="name"
-            value={formData.name}
-            onChange={handleChange}
-            placeholder="Enter your first name"
-            className="border p-2 w-full mb-2"
-          />
-          {errors.name && <p className="text-red-500 text-sm">{errors.name}</p>}
-          <button
-            onClick={nextStep}
-            className="bg-blue-500 text-white p-2 rounded mt-2"
-          >
-            Next
-          </button>
-        </div>
-      )}
-
-      {step === 2 && (
-        <div>
-          <h2 className="text-xl font-bold mb-4">Step 2: Enter Location</h2>
-          <input
-            type="text"
-            name="location"
-            value={formData.location}
-            onChange={handleChange}
-            placeholder="Enter your location"
-            className="border p-2 w-full mb-2"
-          />
-          {errors.location && <p className="text-red-500 text-sm">{errors.location}</p>}
-          <button
-            onClick={prevStep}
-            className="bg-gray-500 text-white p-2 rounded mr-2"
-          >
-            Back
-          </button>
-          <button
-            onClick={handleSubmit}
-            className="bg-green-500 text-white p-2 rounded"
-          >
-            Submit
-          </button>
-        </div>
-      )}
+    <div
+      style={{
+        display: "flex",
+        height: "100vh",
+        justifyContent: "center",
+        alignItems: "center",
+        flexDirection: "column",
+        background: "#f5f5f5",
+      }}
+    >
+      <h1>Enter Your Role</h1>
+      <form onSubmit={handleSubmit} style={{ display: "flex", alignItems: "center" }}>
+        <input
+          type="text"
+          placeholder="Enter admin, doctor, or nurse"
+          value={role}
+          onChange={(e) => setRole(e.target.value)}
+          style={{
+            padding: "8px",
+            fontSize: "16px",
+            marginRight: "8px",
+            borderRadius: "4px",
+            border: "1px solid #ccc",
+          }}
+        />
+        <button
+          type="submit"
+          style={{
+            padding: "8px 16px",
+            fontSize: "16px",
+            borderRadius: "4px",
+            border: "none",
+            backgroundColor: "#007bff",
+            color: "#fff",
+            cursor: "pointer",
+          }}
+        >
+          Submit
+        </button>
+      </form>
     </div>
   );
-};
+}
 
-export default MultiStepForm;
+export default RoleRedirect;
