@@ -1,4 +1,4 @@
-import React from "react";
+import React, { useEffect, useState } from "react";
 import {
   Box,
   Flex,
@@ -408,6 +408,9 @@ export default function VitalsTable({ patient }) {
   const borderColor = useColorModeValue("gray.200", "whiteAlpha.100");
   const { isOpen, onOpen, onClose } = useDisclosure(); // For the Add Vitals modal
 
+  //API
+  const [apiHost, setApiHost] = useState("");
+
   // New state for vitals restriction alert modal.
   const [isVitalsRestrictionAlertOpen, setIsVitalsRestrictionAlertOpen] =
     React.useState(false);
@@ -475,7 +478,7 @@ export default function VitalsTable({ patient }) {
             px="3px"
           >
             <Text fontSize="sm" color="gray.400">
-            height
+              height
             </Text>
             {column.getIsSorted() === "asc"
               ? " ⬆"
@@ -500,7 +503,7 @@ export default function VitalsTable({ patient }) {
             px="3px"
           >
             <Text fontSize="sm" color="gray.400">
-            weight
+              weight
             </Text>
             {column.getIsSorted() === "asc"
               ? " ⬆"
@@ -775,7 +778,13 @@ export default function VitalsTable({ patient }) {
       }
     }
   };
-
+  // Load the host URL from a text file (placed in your public folder as apiHost.txt)
+  useEffect(() => {
+    fetch("/apiHost.txt")
+      .then((res) => res.text())
+      .then((text) => setApiHost(text.trim()))
+      .catch((err) => console.error("Error loading API host:", err));
+  }, []);
   // Update record using the edit API.
   const handleModalSave = async (updatedData) => {
     const payload = {
@@ -793,8 +802,9 @@ export default function VitalsTable({ patient }) {
     };
 
     try {
+      if (!apiHost) return;
       const response = await fetch(
-        "https://mediqo-api.onrender.com/editDiabPatientVitalSigns",
+        apiHost + "/editDiabPatientVitalSigns",
         // "http://localhost:3001/editDiabPatientVitalSigns",
         {
           method: "POST",
@@ -821,8 +831,9 @@ export default function VitalsTable({ patient }) {
     };
 
     try {
+      if (!apiHost) return;
       const response = await fetch(
-        "https://mediqo-api.onrender.com/deleteDiabPatientVitalSigns",
+        apiHost + "/deleteDiabPatientVitalSigns",
         // "http://localhost:3001/deleteDiabPatientVitalSigns",
         {
           method: "POST",

@@ -1,4 +1,4 @@
-import React, { useState } from "react";
+import React, { useState, useEffect } from "react";
 import {
   Box,
   Text,
@@ -51,6 +51,17 @@ function PatientLabResults({ isOpen, onClose }) {
   const [modalMessage, setModalMessage] = useState("");
   const [isSuccess, setIsSuccess] = useState(false);
 
+  // Load API host state
+  const [apiHost, setApiHost] = useState("");
+
+  // Load the host URL from a text file (placed in your public folder as apiHost.txt)
+  useEffect(() => {
+    fetch("/apiHost.txt")
+      .then((res) => res.text())
+      .then((text) => setApiHost(text.trim()))
+      .catch((err) => console.error("Error loading API host:", err));
+  }, []);
+
   const validateLabResults = () => {
     let newErrors = {};
     // Regular expression to validate numbers with at most 2 decimal places
@@ -58,10 +69,14 @@ function PatientLabResults({ isOpen, onClose }) {
 
     if (!glucose) newErrors.glucose = "Random Blood Glucose is required";
     else if (!numberRegex.test(glucose))
-      newErrors.glucose = "Random Blood Glucose must be a number with up to 2 decimals";
+      newErrors.glucose =
+        "Random Blood Glucose must be a number with up to 2 decimals";
 
-    if (fastglucose.trim() !== "" && !numberRegex.test(fastglucose))
-      newErrors.fastglucose = "Fasting Blood Glucose must be a number with up to 2 decimals";
+    if (!fastglucose)
+      newErrors.fastglucose = "Fasting Blood Glucose is required";
+    else if (!numberRegex.test(fastglucose))
+      newErrors.fastglucose =
+        "Fasting Blood Glucose must be a number with up to 2 decimals";
 
     if (!hb) newErrors.hb = "HbA1c is required";
     else if (!numberRegex.test(hb))
@@ -69,7 +84,8 @@ function PatientLabResults({ isOpen, onClose }) {
 
     if (!creatinine) newErrors.creatinine = "Creatinine is required";
     else if (!numberRegex.test(creatinine))
-      newErrors.creatinine = "Creatinine must be a number with up to 2 decimals";
+      newErrors.creatinine =
+        "Creatinine must be a number with up to 2 decimals";
 
     setErrors(newErrors);
     return Object.keys(newErrors).length === 0;
@@ -112,7 +128,9 @@ function PatientLabResults({ isOpen, onClose }) {
     if (!patientPhone) {
       setIsSuccess(false);
       setModalTitle("Error");
-      setModalMessage("Patient profile not found. Please register profile first.");
+      setModalMessage(
+        "Patient profile not found. Please register profile first."
+      );
       setModalOpen(true);
       return;
     }
@@ -125,21 +143,22 @@ function PatientLabResults({ isOpen, onClose }) {
     );
 
     fetch(
-      "https://mediqo-api.onrender.com/registerDiabPatientLabResults", 
-      // "http://localhost:3001/registerDiabPatientLabResults", 
+      `${apiHost}/registerDiabPatientLabResults`,
+      // "http://localhost:3001/registerDiabPatientLabResults",
       {
-      method: "POST",
-      headers: { "Content-Type": "application/json" },
-      body: JSON.stringify({
-        phone_number: patientPhone,
-        labDates: todayDate, // Use todayDate as labDates
-        glucose,
-        fastglucose,
-        hb,
-        creatinine,
-        moreLab: moreLabFiltered,
-      }),
-    })
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({
+          phone_number: patientPhone,
+          labDates: todayDate, // Use todayDate as labDates
+          glucose,
+          fastglucose,
+          hb,
+          creatinine,
+          moreLab: moreLabFiltered,
+        }),
+      }
+    )
       .then((res) => res.json())
       .then((data) => {
         if (data.status === "ok") {
@@ -173,9 +192,16 @@ function PatientLabResults({ isOpen, onClose }) {
           <ModalBody>
             <SimpleGrid columns="2" gap="20px">
               <FormControl isInvalid={errors.glucose} mb="12px">
-                <FormLabel fontSize="sm" fontWeight="500" color={textColor} mb="4px">
+                <FormLabel
+                  fontSize="sm"
+                  fontWeight="500"
+                  color={textColor}
+                  mb="4px"
+                >
                   Random Blood Glucose (mg/dL)
-                  <Text as="span" color="red">*</Text>
+                  <Text as="span" color="red">
+                    *
+                  </Text>
                 </FormLabel>
                 <Input
                   value={glucose}
@@ -185,11 +211,21 @@ function PatientLabResults({ isOpen, onClose }) {
                   variant="flushed"
                   onChange={(e) => setGlucose(e.target.value)}
                 />
-                {errors.glucose && <FormErrorMessage>{errors.glucose}</FormErrorMessage>}
+                {errors.glucose && (
+                  <FormErrorMessage>{errors.glucose}</FormErrorMessage>
+                )}
               </FormControl>
               <FormControl isInvalid={errors.fastglucose} mb="12px">
-                <FormLabel fontSize="sm" fontWeight="500" color={textColor} mb="4px">
+                <FormLabel
+                  fontSize="sm"
+                  fontWeight="500"
+                  color={textColor}
+                  mb="4px"
+                >
                   Fasting Blood Glucose (mg/dL)
+                  <Text as="span" color="red">
+                    *
+                  </Text>
                 </FormLabel>
                 <Input
                   value={fastglucose}
@@ -199,12 +235,21 @@ function PatientLabResults({ isOpen, onClose }) {
                   variant="flushed"
                   onChange={(e) => setFastGlucose(e.target.value)}
                 />
-                {errors.fastglucose && <FormErrorMessage>{errors.fastglucose}</FormErrorMessage>}
+                {errors.fastglucose && (
+                  <FormErrorMessage>{errors.fastglucose}</FormErrorMessage>
+                )}
               </FormControl>
               <FormControl isInvalid={errors.hb} mb="12px">
-                <FormLabel fontSize="sm" fontWeight="500" color={textColor} mb="4px">
+                <FormLabel
+                  fontSize="sm"
+                  fontWeight="500"
+                  color={textColor}
+                  mb="4px"
+                >
                   HbA1c (%)
-                  <Text as="span" color="red">*</Text>
+                  <Text as="span" color="red">
+                    *
+                  </Text>
                 </FormLabel>
                 <Input
                   value={hb}
@@ -217,9 +262,16 @@ function PatientLabResults({ isOpen, onClose }) {
                 {errors.hb && <FormErrorMessage>{errors.hb}</FormErrorMessage>}
               </FormControl>
               <FormControl isInvalid={errors.creatinine} mb="12px">
-                <FormLabel fontSize="sm" fontWeight="500" color={textColor} mb="4px">
+                <FormLabel
+                  fontSize="sm"
+                  fontWeight="500"
+                  color={textColor}
+                  mb="4px"
+                >
                   Creatinine (µmol/L)
-                  <Text as="span" color="red">*</Text>
+                  <Text as="span" color="red">
+                    *
+                  </Text>
                 </FormLabel>
                 <Input
                   value={creatinine}
@@ -229,7 +281,9 @@ function PatientLabResults({ isOpen, onClose }) {
                   variant="flushed"
                   onChange={(e) => setCreatinine(e.target.value)}
                 />
-                {errors.creatinine && <FormErrorMessage>{errors.creatinine}</FormErrorMessage>}
+                {errors.creatinine && (
+                  <FormErrorMessage>{errors.creatinine}</FormErrorMessage>
+                )}
               </FormControl>
             </SimpleGrid>
 
@@ -242,10 +296,10 @@ function PatientLabResults({ isOpen, onClose }) {
                 <Thead>
                   <Tr>
                     <Th fontSize="sm" color="gray.500">
-                      Lab Result
+                      Lab Test
                     </Th>
                     <Th fontSize="sm" color="gray.500">
-                      Value
+                      Lab Result
                     </Th>
                   </Tr>
                 </Thead>

@@ -1,0 +1,5 @@
+sudo lsof -t -i:3000
+sudo kill -9 1234
+git add .
+git commit -m "20 March 2025"
+git push -u origin main

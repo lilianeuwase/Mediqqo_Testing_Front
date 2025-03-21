@@ -1,4 +1,4 @@
-import React, { useState } from "react";
+import React, { useState, useEffect } from "react";
 import {
   Box,
   Text,
@@ -66,6 +66,17 @@ function PatientAdditionalInfo({ isOpen, onClose }) {
   const [notificationTitle, setNotificationTitle] = useState("");
   const [notificationMessage, setNotificationMessage] = useState("");
   const [isSuccess, setIsSuccess] = useState(false);
+
+  // Load API host state
+  const [apiHost, setApiHost] = useState("");
+
+  // Load the host URL from a text file (placed in your public folder as apiHost.txt)
+  useEffect(() => {
+    fetch("/apiHost.txt")
+      .then((res) => res.text())
+      .then((text) => setApiHost(text.trim()))
+      .catch((err) => console.error("Error loading API host:", err));
+  }, []);
 
   const handleCheckboxChange = (event) => {
     setState({
@@ -152,21 +163,21 @@ function PatientAdditionalInfo({ isOpen, onClose }) {
 
     // Send the POST request with the updated fields.
     fetch(
-      "https://mediqo-api.onrender.com/registerDiabPatientAdditionalInfo", 
-      // "http://localhost:3001/registerDiabPatientAdditionalInfo", 
+      `${apiHost}/registerDiabPatientAdditionalInfo`,
       {
-      method: "POST",
-      headers: { "Content-Type": "application/json" },
-      body: JSON.stringify({
-        phone_number: patientPhone,
-        doctorDates: todayDate,
-        clinicalSymp: clinicalSympArr,
-        dangerSigns: dangerSignsArr,
-        complications: complicationsArr,
-        comorbidities: comorbiditiesArr,
-        doctor_comment: doctor_comment,
-      }),
-    })
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({
+          phone_number: patientPhone,
+          doctorDates: todayDate,
+          clinicalSymp: clinicalSympArr,
+          dangerSigns: dangerSignsArr,
+          complications: complicationsArr,
+          comorbidities: comorbiditiesArr,
+          doctor_comment: doctor_comment,
+        }),
+      }
+    )
       .then((res) => res.json())
       .then((data) => {
         if (data.status === "ok") {

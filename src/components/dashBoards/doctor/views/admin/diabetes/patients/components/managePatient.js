@@ -46,9 +46,9 @@ function ManagePatient({ patient }) {
   )
     computedActiveStep += 1;
   if (
-    patient?.diagnosisDates &&
-    patient.diagnosisDates.length > currentCycle &&
-    patient.diagnosisDates[currentCycle]
+    patient?.diagnosis &&
+    patient.diagnosis.length > currentCycle &&
+    patient.diagnosis[currentCycle]
   )
     computedActiveStep += 1;
 
@@ -67,8 +67,8 @@ function ManagePatient({ patient }) {
       ? patient.labDates[patient.labDates.length - 1]
       : null;
   const diagnosisDate =
-    patient.diagnosisDates && patient.diagnosisDates.length > 0
-      ? patient.diagnosisDates[patient.diagnosisDates.length - 1]
+    patient.diagnosis && patient.diagnosis.length > 0
+      ? patient.diagnosis[patient.diagnosis.length - 1]
       : null;
 
   const dates = [

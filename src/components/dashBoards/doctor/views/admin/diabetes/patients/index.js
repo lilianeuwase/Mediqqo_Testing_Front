@@ -31,6 +31,7 @@ import DiabResultCard from "./components/result/diabResultCard";
 
 // Import the PatientAppointment component
 import DiabPatientAppointment from "./components/actions/diabAppointment";
+import DiabResultCalculate from "./components/result/diabResultCalculate";
 
 export default function DaibPatientInfo() {
   const [isAppointmentOpen, setIsAppointmentOpen] = useState(false);
@@ -172,6 +173,7 @@ export default function DaibPatientInfo() {
             <Box mt="20px">
               <DiabResultTable patient={patient} />
             </Box>
+            <DiabResultCalculate patient={patient} />
           </TabPanel>
 
           {/* Tab 6: Full History */}

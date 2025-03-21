@@ -1,5 +1,5 @@
-import React, { useState } from "react";
-import {Box} from "@chakra-ui/react";
+import React, { useState, useEffect } from "react";
+import { Box } from "@chakra-ui/react";
 
 export default function AddUser() {
   // State variables for input fields
@@ -20,6 +20,9 @@ export default function AddUser() {
   // State for modal popup
   const [modalVisible, setModalVisible] = useState(false);
   const [modalMessage, setModalMessage] = useState("");
+
+  // Host URL state
+  const [apiHost, setApiHost] = useState("");
 
   // Allowed user types
   const allowedUserTypes = [
@@ -93,29 +96,28 @@ export default function AddUser() {
     );
 
     // Send the form data to the backend
-    fetch(
-      "https://mediqo-api.onrender.com/register", 
-      // "http://localhost:3001/register", 
+    fetch(`${apiHost}/register`, 
       {
-      method: "POST",
-      crossDomain: true,
-      headers: {
-        "Content-Type": "application/json",
-        Accept: "application/json",
-        "Access-Control-Allow-Origin": "*",
-      },
-      body: JSON.stringify({
-        fname,
-        lname,
-        email,
-        phone,
-        speciality,
-        hospital,
-        password,
-        userType,
-      }),
-      mode: "cors", // Ensure CORS mode is set
-    })
+        method: "POST",
+        crossDomain: true,
+        headers: {
+          "Content-Type": "application/json",
+          Accept: "application/json",
+          "Access-Control-Allow-Origin": "*",
+        },
+        body: JSON.stringify({
+          fname,
+          lname,
+          email,
+          phone,
+          speciality,
+          hospital,
+          password,
+          userType,
+        }),
+        mode: "cors", // Ensure CORS mode is set
+      }
+    )
       .then((res) => res.json())
       .then((data) => {
         console.log(data, "userRegister");
@@ -158,6 +160,14 @@ export default function AddUser() {
   // Function to close the modal
   const closeModal = () => setModalVisible(false);
 
+  // Load the host URL from a text file (placed in your public folder as apiHost.txt)
+  useEffect(() => {
+    fetch("/apiHost.txt")
+      .then((res) => res.text())
+      .then((text) => setApiHost(text.trim()))
+      .catch((err) => console.error("Error loading API host:", err));
+  }, []);
+
   return (
     <Box pt={{ base: "130px", md: "80px", xl: "80px" }}>
       <div className="auth-wrapper">
@@ -183,7 +193,7 @@ export default function AddUser() {
               )}
             </div>
 
-            {userType === "Admin" || userType === "Super Admin"? (
+            {userType === "Admin" || userType === "Super Admin" ? (
               <div className="mb-3">
                 <label>Secret Key</label>
                 <input

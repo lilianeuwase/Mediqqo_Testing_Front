@@ -1,4 +1,4 @@
-import React from "react";
+import React, { useState, useEffect } from "react";
 import {
   Box,
   Flex,
@@ -67,13 +67,12 @@ function DeleteConfirmationModal({ isOpen, onClose, onConfirm, recordDate }) {
 
 // ------------------------------------------------------------------
 // EditRequestLabModal: A modal for editing a lab request.
-// The date field (requestLabsDates) is read-only while Request is editable.
 function EditRequestLabModal({ isOpen, onClose, initialData, onSave }) {
   const textColor = useColorModeValue("secondaryGray.900", "white");
-  const [formData, setFormData] = React.useState(initialData || {});
-  const [errors, setErrors] = React.useState({});
+  const [formData, setFormData] = useState(initialData || {});
+  const [errors, setErrors] = useState({});
 
-  React.useEffect(() => {
+  useEffect(() => {
     setFormData(initialData || {});
   }, [initialData]);
 
@@ -146,20 +145,31 @@ export default function RequestLabTable({ patient }) {
   const borderColor = useColorModeValue("gray.200", "whiteAlpha.100");
 
   // Table states
-  const [sorting, setSorting] = React.useState([]);
-  const [searchQuery, setSearchQuery] = React.useState("");
-  const [pageSize, setPageSize] = React.useState(10);
-  const [currentPage, setCurrentPage] = React.useState(0);
+  const [sorting, setSorting] = useState([]);
+  const [searchQuery, setSearchQuery] = useState("");
+  const [pageSize, setPageSize] = useState(10);
+  const [currentPage, setCurrentPage] = useState(0);
 
   // States for the Edit Modal
-  const [isEditModalOpen, setIsEditModalOpen] = React.useState(false);
-  const [selectedEditData, setSelectedEditData] = React.useState(null);
-  const [selectedRowIndex, setSelectedRowIndex] = React.useState(null);
+  const [isEditModalOpen, setIsEditModalOpen] = useState(false);
+  const [selectedEditData, setSelectedEditData] = useState(null);
+  const [selectedRowIndex, setSelectedRowIndex] = useState(null);
 
   // States for the Delete Confirmation Modal
-  const [isDeleteModalOpen, setIsDeleteModalOpen] = React.useState(false);
-  const [selectedDeleteData, setSelectedDeleteData] = React.useState(null);
-  const [selectedDeleteRowIndex, setSelectedDeleteRowIndex] = React.useState(null);
+  const [isDeleteModalOpen, setIsDeleteModalOpen] = useState(false);
+  const [selectedDeleteData, setSelectedDeleteData] = useState(null);
+  const [selectedDeleteRowIndex, setSelectedDeleteRowIndex] = useState(null);
+
+  // Load API host state
+  const [apiHost, setApiHost] = useState("");
+  useEffect(() => {
+    fetch("/apiHost.txt")
+      .then((res) => res.text())
+      .then((text) => setApiHost(text.trim()))
+      .catch((err) => console.error("Error loading API host:", err));
+  }, []);
+
+  const columnHelper = createColumnHelper();
 
   const columns = React.useMemo(
     () => [
@@ -209,12 +219,10 @@ export default function RequestLabTable({ patient }) {
         ),
         cell: (info) => {
           const value = info.getValue();
-          // If the value is not an array, wrap it in an array.
           const testsArray = Array.isArray(value) ? value : [value];
           return (
             <Text fontSize="sm" color={textColor}>
               {testsArray.map((test, idx) => {
-                // Format the test: capitalize the first letter, leave the rest as-is.
                 const formatted =
                   typeof test === "string" && test.length > 0
                     ? test.charAt(0).toUpperCase() + test.slice(1)
@@ -316,13 +324,13 @@ export default function RequestLabTable({ patient }) {
 
     try {
       const response = await fetch(
-        "https://mediqo-api.onrender.com/editDiabRequestedLab", 
-        // "http://localhost:3001/editDiabRequestedLab", 
+        `${apiHost}/editDiabRequestedLab`,
         {
-        method: "POST",
-        headers: { "Content-Type": "application/json" },
-        body: JSON.stringify(payload),
-      });
+          method: "POST",
+          headers: { "Content-Type": "application/json" },
+          body: JSON.stringify(payload),
+        }
+      );
       const result = await response.json();
       if (result.status === "ok") {
         window.location.reload();
@@ -343,13 +351,13 @@ export default function RequestLabTable({ patient }) {
 
     try {
       const response = await fetch(
-        "https://mediqo-api.onrender.com/deleteDiabRequestedLab", 
-        // "http://localhost:3001/deleteDiabRequestedLab", 
+        `${apiHost}/deleteDiabRequestedLab`,
         {
-        method: "POST",
-        headers: { "Content-Type": "application/json" },
-        body: JSON.stringify(payload),
-      });
+          method: "POST",
+          headers: { "Content-Type": "application/json" },
+          body: JSON.stringify(payload),
+        }
+      );
       const result = await response.json();
       if (result.status === "ok") {
         window.location.reload();

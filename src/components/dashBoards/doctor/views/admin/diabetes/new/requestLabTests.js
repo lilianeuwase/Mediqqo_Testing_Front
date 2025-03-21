@@ -1,4 +1,4 @@
-import React from "react";
+import React, { useState, useEffect } from "react";
 import {
   Flex,
   Text,
@@ -26,17 +26,28 @@ export function LabExamModal({
   labExamOptions,
 }) {
   const modalTextColor = useColorModeValue("secondaryGray.900", "white");
-  const [searchTerm, setSearchTerm] = React.useState("");
-  const [customLabs, setCustomLabs] = React.useState("");
+  const [searchTerm, setSearchTerm] = useState("");
+  const [customLabs, setCustomLabs] = useState("");
 
   // Notification states (error/success)
-  const [notificationOpen, setNotificationOpen] = React.useState(false);
-  const [notificationTitle, setNotificationTitle] = React.useState("");
-  const [notificationMessage, setNotificationMessage] = React.useState("");
-  const [isSuccess, setIsSuccess] = React.useState(false);
+  const [notificationOpen, setNotificationOpen] = useState(false);
+  const [notificationTitle, setNotificationTitle] = useState("");
+  const [notificationMessage, setNotificationMessage] = useState("");
+  const [isSuccess, setIsSuccess] = useState(false);
 
   // Retrieve patient data and phone number.
   const patient = DiabPatientData();
+
+  // Load API host state
+  const [apiHost, setApiHost] = useState("");
+
+  // Load the host URL from a text file (placed in your public folder as apiHost.txt)
+  useEffect(() => {
+    fetch("/apiHost.txt")
+      .then((res) => res.text())
+      .then((text) => setApiHost(text.trim()))
+      .catch((err) => console.error("Error loading API host:", err));
+  }, []);
 
   // Helper function to format the current date as "DD/MM/YYYY HH:MM".
   const formatDate = (date) => {
@@ -105,17 +116,17 @@ export function LabExamModal({
 
     try {
       const response = await fetch(
-        "https://mediqo-api.onrender.com/registerDiabRequestedLab",
-        // "http://localhost:3001/registerDiabRequestedLab",
-         {
-        method: "POST",
-        headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({
-          phone_number: patientPhone,
-          requestLabsDates: todayDate,
-          requestLab: combinedExams,
-        }),
-      });
+        `${apiHost}/registerDiabRequestedLab`,
+        {
+          method: "POST",
+          headers: { "Content-Type": "application/json" },
+          body: JSON.stringify({
+            phone_number: patientPhone,
+            requestLabsDates: todayDate,
+            requestLab: combinedExams,
+          }),
+        }
+      );
       const result = await response.json();
       if (result.status === "ok") {
         setIsSuccess(true);

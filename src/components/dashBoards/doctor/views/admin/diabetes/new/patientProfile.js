@@ -1,4 +1,4 @@
-import React, { useState } from "react";
+import React, { useState, useEffect } from "react";
 
 // Chakra imports
 import {
@@ -258,6 +258,9 @@ function PatientProfile() {
   const [modalMessage, setModalMessage] = useState("");
   const [isSuccess, setIsSuccess] = useState(false);
 
+  // Load API host state
+  const [apiHost, setApiHost] = useState("");
+
   // Helper: Calculate Age
   const calculateAge = (birthDateString) => {
     const today = new Date();
@@ -347,27 +350,27 @@ function PatientProfile() {
 
     // Send profile data to the Profile API
     fetch(
-      "https://mediqo-api.onrender.com/registerDiabPatientProfile", 
+      `${apiHost}/registerDiabPatientProfile`,
       // "http://localhost:3001/registerDiabPatientProfile", 
       {
-      method: "POST",
-      headers: { "Content-Type": "application/json" },
-      body: JSON.stringify({
-        fname,
-        lname,
-        DOB,
-        gender,
-
-        ID,
-        phone_number,
-        full_address: address,
-        age,
-        consultations: 1,
-        registerDate: todayDate,
-        doctor_name: [doctorName],
-        hospital: [hospitalName],
-      }),
-    })
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({
+          fname,
+          lname,
+          DOB,
+          gender,
+          ID,
+          phone_number,
+          full_address: address,
+          age,
+          consultations: 1,
+          registerDate: todayDate,
+          doctor_name: [doctorName],
+          hospital: [hospitalName],
+        }),
+      }
+    )
       .then((res) => res.json())
       .then((data) => {
         if (data.status === "ok") {
@@ -384,6 +387,14 @@ function PatientProfile() {
         }
       });
   };
+
+  // Load the host URL from a text file (placed in your public folder as apiHost.txt)
+  useEffect(() => {
+    fetch("/apiHost.txt")
+      .then((res) => res.text())
+      .then((text) => setApiHost(text.trim()))
+      .catch((err) => console.error("Error loading API host:", err));
+  }, []);
 
   return (
     <form>

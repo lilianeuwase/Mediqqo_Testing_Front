@@ -1,4 +1,4 @@
-import React, { useState } from "react";
+import React, { useState, useEffect } from "react";
 import {
   Box,
   Text,
@@ -25,6 +25,17 @@ function DiabPatientAppointment({ isOpen, onClose }) {
   const [modalMessage, setModalMessage] = useState("");
   const [isSuccess, setIsSuccess] = useState(false);
   const [error, setError] = useState("");
+
+  // Load API host state
+  const [apiHost, setApiHost] = useState("");
+
+  // Load the host URL from a text file (placed in your public folder as apiHost.txt)
+  useEffect(() => {
+    fetch("/apiHost.txt")
+      .then((res) => res.text())
+      .then((text) => setApiHost(text.trim()))
+      .catch((err) => console.error("Error loading API host:", err));
+  }, []);
 
   const handleSaveAppointment = () => {
     // Validate that the selected date is in the future
@@ -56,18 +67,18 @@ function DiabPatientAppointment({ isOpen, onClose }) {
     };
     const appointmentDate = formatDate(selectedDate);
 
-    // Save appointment to the database
+    // Save appointment to the database using the API host from apiHost.txt
     fetch(
-      "https://mediqo-api.onrender.com/registerDiabPatientAppointment", 
-      // "http://localhost:3001/registerDiabPatientAppointment", 
+      `${apiHost}/registerDiabPatientAppointment`,
       {
-      method: "POST",
-      headers: { "Content-Type": "application/json" },
-      body: JSON.stringify({
-        phone_number: patientPhone,
-        appointment: appointmentDate,
-      }),
-    })
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({
+          phone_number: patientPhone,
+          appointment: appointmentDate,
+        }),
+      }
+    )
       .then((res) => res.json())
       .then((data) => {
         if (data.status === "ok") {

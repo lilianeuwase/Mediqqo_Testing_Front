@@ -1,4 +1,4 @@
-import React from "react";
+import React, { useEffect, useState } from "react";
 import {
   Box,
   Flex,
@@ -49,7 +49,11 @@ import {
   getCoreRowModel,
   getSortedRowModel,
 } from "@tanstack/react-table";
-import { ChevronLeftIcon, ChevronRightIcon, ChevronDownIcon } from "@chakra-ui/icons";
+import {
+  ChevronLeftIcon,
+  ChevronRightIcon,
+  ChevronDownIcon,
+} from "@chakra-ui/icons";
 
 // Import the lab test modals from the separate file.
 import { LabExamModal, RequestLabTests } from "../../new/requestLabTests";
@@ -113,71 +117,226 @@ function DeleteConfirmationModal({ isOpen, onClose, onConfirm, recordDate }) {
 // EditAdditionalInfoModal: A modal for editing an additional info record.
 function EditAdditionalInfoModal({ isOpen, onClose, initialData, onSave }) {
   const textColor = useColorModeValue("secondaryGray.900", "white");
-  const [formData, setFormData] = React.useState(initialData || {});
+
+  // Define default options for each category.
+  const defaultClinical = ["Polyuria", "Polydipsia", "Polyphagia"];
+  const defaultDanger = [
+    "Dehydration",
+    "Abdominal Pain",
+    "Hypoglycemia",
+    "Shortness of Breath",
+    "Confusion",
+  ];
+  const defaultComp = [
+    "Retinopathy",
+    "Nephropathy",
+    "Neuropathy",
+    "Foot Ulcer",
+  ];
+  const defaultCoM = ["HIV", "Hypertension", "Liver Disease", "Pregnant"];
+
+  const [formData, setFormData] = React.useState({
+    doctorDates: "",
+    clinicalSympChecked: {
+      polyuria: false,
+      polydipsia: false,
+      polyphagia: false,
+    },
+    additionalClinicalSymp: "",
+    dangerSignsChecked: {
+      hydra: false,
+      abspain: false,
+      hypo: false,
+      sighing: false,
+      confusion: false,
+    },
+    additionalDangerSigns: "",
+    complicationsChecked: {
+      retino: false,
+      nephro: false,
+      neuro: false,
+      footulcer: false,
+    },
+    additionalComplications: "",
+    comorbiditiesChecked: {
+      hiv: false,
+      htn: false,
+      liver: false,
+      prego: false,
+    },
+    additionalComorbidities: "",
+  });
   const [errors, setErrors] = React.useState({});
 
-  // When initialData changes, transform array fields into comma-separated strings.
+  // Initialize the form state based on the existing record.
   React.useEffect(() => {
     if (initialData) {
+      const clinicalSymp = Array.isArray(initialData.clinicalSymp)
+        ? initialData.clinicalSymp
+        : [];
+      const dangerSigns = Array.isArray(initialData.dangerSigns)
+        ? initialData.dangerSigns
+        : [];
+      const complications = Array.isArray(initialData.complications)
+        ? initialData.complications
+        : [];
+      const comorbidities = Array.isArray(initialData.comorbidities)
+        ? initialData.comorbidities
+        : [];
+
+      const clinicalSympChecked = {
+        polyuria: clinicalSymp.includes("Polyuria"),
+        polydipsia: clinicalSymp.includes("Polydipsia"),
+        polyphagia: clinicalSymp.includes("Polyphagia"),
+      };
+      const additionalClinicalSymp = clinicalSymp
+        .filter((item) => !defaultClinical.includes(item))
+        .join(", ");
+
+      const dangerSignsChecked = {
+        hydra: dangerSigns.includes("Dehydration"),
+        abspain: dangerSigns.includes("Abdominal Pain"),
+        hypo: dangerSigns.includes("Hypoglycemia"),
+        sighing: dangerSigns.includes("Shortness of Breath"),
+        confusion: dangerSigns.includes("Confusion"),
+      };
+      const additionalDangerSigns = dangerSigns
+        .filter((item) => !defaultDanger.includes(item))
+        .join(", ");
+
+      const complicationsChecked = {
+        retino: complications.includes("Retinopathy"),
+        nephro: complications.includes("Nephropathy"),
+        neuro: complications.includes("Neuropathy"),
+        footulcer: complications.includes("Foot Ulcer"),
+      };
+      const additionalComplications = complications
+        .filter((item) => !defaultComp.includes(item))
+        .join(", ");
+
+      const comorbiditiesChecked = {
+        hiv: comorbidities.includes("HIV"),
+        htn: comorbidities.includes("Hypertension"),
+        liver: comorbidities.includes("Liver Disease"),
+        prego: comorbidities.includes("Pregnant"),
+      };
+      const additionalComorbidities = comorbidities
+        .filter((item) => !defaultCoM.includes(item))
+        .join(", ");
+
       setFormData({
-        ...initialData,
-        complications: Array.isArray(initialData.complications)
-          ? initialData.complications.join(", ")
-          : initialData.complications || "",
-        comorbidities: Array.isArray(initialData.comorbidities)
-          ? initialData.comorbidities.join(", ")
-          : initialData.comorbidities || "",
-        dangerSigns: Array.isArray(initialData.dangerSigns)
-          ? initialData.dangerSigns.join(", ")
-          : initialData.dangerSigns || "",
-        clinicalSymp: Array.isArray(initialData.clinicalSymp)
-          ? initialData.clinicalSymp.join(", ")
-          : initialData.clinicalSymp || "",
+        doctorDates: initialData.doctorDates,
+        clinicalSympChecked,
+        additionalClinicalSymp,
+        dangerSignsChecked,
+        additionalDangerSigns,
+        complicationsChecked,
+        additionalComplications,
+        comorbiditiesChecked,
+        additionalComorbidities,
       });
-    } else {
-      setFormData({});
     }
   }, [initialData]);
 
+  // Handler for checkbox changes.
+  const handleCheckboxChange = (category, key) => (e) => {
+    setFormData((prev) => ({
+      ...prev,
+      [category]: {
+        ...prev[category],
+        [key]: e.target.checked,
+      },
+    }));
+  };
+
+  // Handler for additional text inputs.
+  const handleInputChange = (e) => {
+    const { name, value } = e.target;
+    setFormData((prev) => ({
+      ...prev,
+      [name]: value,
+    }));
+  };
+
   const handleSave = () => {
     let newErrors = {};
-    const {
-      doctorDates,
-      complications,
-      comorbidities,
-      dangerSigns,
-      clinicalSymp,
-    } = formData;
-
-    if (!doctorDates) newErrors.doctorDates = "Consultation Date is required";
-    if (!complications) newErrors.complications = "Complications are required";
-    if (!comorbidities) newErrors.comorbidities = "Co-morbidity is required";
-    if (!dangerSigns) newErrors.dangerSigns = "Danger Signs are required";
-    if (!clinicalSymp)
-      newErrors.clinicalSymp = "Clinical Symptoms are required";
-
     setErrors(newErrors);
     if (Object.keys(newErrors).length > 0) return;
 
-    // Transform comma-separated strings back into arrays.
+    // Combine the checkbox selections with any additional values.
+    const clinicalSympSelected = [];
+    if (formData.clinicalSympChecked.polyuria)
+      clinicalSympSelected.push("Polyuria");
+    if (formData.clinicalSympChecked.polydipsia)
+      clinicalSympSelected.push("Polydipsia");
+    if (formData.clinicalSympChecked.polyphagia)
+      clinicalSympSelected.push("Polyphagia");
+    if (formData.additionalClinicalSymp) {
+      formData.additionalClinicalSymp
+        .split(",")
+        .map((item) => item.trim())
+        .filter(Boolean)
+        .forEach((item) => clinicalSympSelected.push(item));
+    }
+
+    const dangerSignsSelected = [];
+    if (formData.dangerSignsChecked.hydra)
+      dangerSignsSelected.push("Dehydration");
+    if (formData.dangerSignsChecked.abspain)
+      dangerSignsSelected.push("Abdominal Pain");
+    if (formData.dangerSignsChecked.hypo)
+      dangerSignsSelected.push("Hypoglycemia");
+    if (formData.dangerSignsChecked.sighing)
+      dangerSignsSelected.push("Shortness of Breath");
+    if (formData.dangerSignsChecked.confusion)
+      dangerSignsSelected.push("Confusion");
+    if (formData.additionalDangerSigns) {
+      formData.additionalDangerSigns
+        .split(",")
+        .map((item) => item.trim())
+        .filter(Boolean)
+        .forEach((item) => dangerSignsSelected.push(item));
+    }
+
+    const complicationsSelected = [];
+    if (formData.complicationsChecked.retino)
+      complicationsSelected.push("Retinopathy");
+    if (formData.complicationsChecked.nephro)
+      complicationsSelected.push("Nephropathy");
+    if (formData.complicationsChecked.neuro)
+      complicationsSelected.push("Neuropathy");
+    if (formData.complicationsChecked.footulcer)
+      complicationsSelected.push("Foot Ulcer");
+    if (formData.additionalComplications) {
+      formData.additionalComplications
+        .split(",")
+        .map((item) => item.trim())
+        .filter(Boolean)
+        .forEach((item) => complicationsSelected.push(item));
+    }
+
+    const comorbiditiesSelected = [];
+    if (formData.comorbiditiesChecked.hiv) comorbiditiesSelected.push("HIV");
+    if (formData.comorbiditiesChecked.htn)
+      comorbiditiesSelected.push("Hypertension");
+    if (formData.comorbiditiesChecked.liver)
+      comorbiditiesSelected.push("Liver Disease");
+    if (formData.comorbiditiesChecked.prego)
+      comorbiditiesSelected.push("Pregnant");
+    if (formData.additionalComorbidities) {
+      formData.additionalComorbidities
+        .split(",")
+        .map((item) => item.trim())
+        .filter(Boolean)
+        .forEach((item) => comorbiditiesSelected.push(item));
+    }
+
     const transformedData = {
-      ...formData,
-      complications: complications
-        .split(",")
-        .map((item) => item.trim())
-        .filter(Boolean),
-      comorbidities: comorbidities
-        .split(",")
-        .map((item) => item.trim())
-        .filter(Boolean),
-      dangerSigns: dangerSigns
-        .split(",")
-        .map((item) => item.trim())
-        .filter(Boolean),
-      clinicalSymp: clinicalSymp
-        .split(",")
-        .map((item) => item.trim())
-        .filter(Boolean),
+      doctorDates: formData.doctorDates,
+      clinicalSymp: clinicalSympSelected,
+      dangerSigns: dangerSignsSelected,
+      complications: complicationsSelected,
+      comorbidities: comorbiditiesSelected,
     };
 
     onSave(transformedData);
@@ -190,136 +349,231 @@ function EditAdditionalInfoModal({ isOpen, onClose, initialData, onSave }) {
         <ModalHeader>Edit Additional Information</ModalHeader>
         <ModalCloseButton />
         <ModalBody>
-          <Flex direction="column" gap="4">
-            <Box>
-              <Text fontWeight="bold">Consultation Date:</Text>
-              <Text>{formData.doctorDates}</Text>
-            </Box>
-            <Grid templateColumns="repeat(2, 1fr)" gap={4}>
-              <GridItem>
-                <FormControl isInvalid={errors.complications}>
-                  <FormLabel
-                    fontSize="sm"
-                    fontWeight="500"
-                    color={textColor}
-                    mb="0px"
-                  >
-                    Complications{" "}
-                    <Text as="span" color="red">
-                      *
-                    </Text>
-                  </FormLabel>
-                  <Input
-                    value={formData.complications || ""}
-                    isRequired
-                    fontSize="sm"
-                    type="text"
-                    size="lg"
-                    variant="flushed"
-                    onChange={(e) =>
-                      setFormData({
-                        ...formData,
-                        complications: e.target.value,
-                      })
-                    }
-                  />
-                  {errors.complications && (
-                    <FormErrorMessage>{errors.complications}</FormErrorMessage>
-                  )}
-                </FormControl>
-              </GridItem>
-              <GridItem>
-                <FormControl isInvalid={errors.comorbidities}>
-                  <FormLabel
-                    fontSize="sm"
-                    fontWeight="500"
-                    color={textColor}
-                    mb="0px"
-                  >
-                    Co-morbidity{" "}
-                    <Text as="span" color="red">
-                      *
-                    </Text>
-                  </FormLabel>
-                  <Input
-                    value={formData.comorbidities || ""}
-                    isRequired
-                    fontSize="sm"
-                    type="text"
-                    size="lg"
-                    variant="flushed"
-                    onChange={(e) =>
-                      setFormData({
-                        ...formData,
-                        comorbidities: e.target.value,
-                      })
-                    }
-                  />
-                  {errors.comorbidities && (
-                    <FormErrorMessage>{errors.comorbidities}</FormErrorMessage>
-                  )}
-                </FormControl>
-              </GridItem>
-              <GridItem>
-                <FormControl isInvalid={errors.dangerSigns}>
-                  <FormLabel
-                    fontSize="sm"
-                    fontWeight="500"
-                    color={textColor}
-                    mb="0px"
-                  >
-                    Danger Signs{" "}
-                    <Text as="span" color="red">
-                      *
-                    </Text>
-                  </FormLabel>
-                  <Input
-                    value={formData.dangerSigns || ""}
-                    isRequired
-                    fontSize="sm"
-                    type="text"
-                    size="lg"
-                    variant="flushed"
-                    onChange={(e) =>
-                      setFormData({ ...formData, dangerSigns: e.target.value })
-                    }
-                  />
-                  {errors.dangerSigns && (
-                    <FormErrorMessage>{errors.dangerSigns}</FormErrorMessage>
-                  )}
-                </FormControl>
-              </GridItem>
-              <GridItem>
-                <FormControl isInvalid={errors.clinicalSymp}>
-                  <FormLabel
-                    fontSize="sm"
-                    fontWeight="500"
-                    color={textColor}
-                    mb="0px"
-                  >
-                    Clinical Symptoms{" "}
-                    <Text as="span" color="red">
-                      *
-                    </Text>
-                  </FormLabel>
-                  <Input
-                    value={formData.clinicalSymp || ""}
-                    isRequired
-                    fontSize="sm"
-                    type="text"
-                    size="lg"
-                    variant="flushed"
-                    onChange={(e) =>
-                      setFormData({ ...formData, clinicalSymp: e.target.value })
-                    }
-                  />
-                  {errors.clinicalSymp && (
-                    <FormErrorMessage>{errors.clinicalSymp}</FormErrorMessage>
-                  )}
-                </FormControl>
-              </GridItem>
-            </Grid>
-          </Flex>
+          <Box mb="4">
+            <Text fontWeight="bold">Consultation Date:</Text>
+            <Text>{formData.doctorDates}</Text>
+          </Box>
+          <Box mb="4">
+            <Text fontWeight="bold" mb="2" color={textColor}>
+              Clinical Symptoms
+            </Text>
+            <Flex gap="10px" wrap="wrap">
+              <Checkbox
+                name="polyuria"
+                colorScheme="purple"
+                isChecked={formData.clinicalSympChecked.polyuria}
+                onChange={handleCheckboxChange(
+                  "clinicalSympChecked",
+                  "polyuria"
+                )}
+              >
+                Polyuria
+              </Checkbox>
+              <Checkbox
+                name="polydipsia"
+                colorScheme="purple"
+                isChecked={formData.clinicalSympChecked.polydipsia}
+                onChange={handleCheckboxChange(
+                  "clinicalSympChecked",
+                  "polydipsia"
+                )}
+              >
+                Polydipsia
+              </Checkbox>
+              <Checkbox
+                name="polyphagia"
+                colorScheme="purple"
+                isChecked={formData.clinicalSympChecked.polyphagia}
+                onChange={handleCheckboxChange(
+                  "clinicalSympChecked",
+                  "polyphagia"
+                )}
+              >
+                Polyphagia
+              </Checkbox>
+            </Flex>
+            <FormControl mt="2">
+              <FormLabel fontSize="sm" fontWeight="500" color={textColor}>
+                Additional Clinical Symptoms (comma separated)
+              </FormLabel>
+              <Input
+                name="additionalClinicalSymp"
+                value={formData.additionalClinicalSymp}
+                onChange={handleInputChange}
+                variant="flushed"
+              />
+            </FormControl>
+          </Box>
+          <Box mb="4">
+            <Text fontWeight="bold" mb="2" color={textColor}>
+              Danger Signs
+            </Text>
+            <Flex gap="10px" wrap="wrap">
+              <Checkbox
+                name="hydra"
+                colorScheme="purple"
+                isChecked={formData.dangerSignsChecked.hydra}
+                onChange={handleCheckboxChange("dangerSignsChecked", "hydra")}
+              >
+                Dehydration
+              </Checkbox>
+              <Checkbox
+                name="abspain"
+                colorScheme="purple"
+                isChecked={formData.dangerSignsChecked.abspain}
+                onChange={handleCheckboxChange("dangerSignsChecked", "abspain")}
+              >
+                Abdominal Pain
+              </Checkbox>
+              <Checkbox
+                name="hypo"
+                colorScheme="purple"
+                isChecked={formData.dangerSignsChecked.hypo}
+                onChange={handleCheckboxChange("dangerSignsChecked", "hypo")}
+              >
+                Hypoglycemia
+              </Checkbox>
+              <Checkbox
+                name="sighing"
+                colorScheme="purple"
+                isChecked={formData.dangerSignsChecked.sighing}
+                onChange={handleCheckboxChange("dangerSignsChecked", "sighing")}
+              >
+                Shortness of Breath
+              </Checkbox>
+              <Checkbox
+                name="confusion"
+                colorScheme="purple"
+                isChecked={formData.dangerSignsChecked.confusion}
+                onChange={handleCheckboxChange(
+                  "dangerSignsChecked",
+                  "confusion"
+                )}
+              >
+                Confusion
+              </Checkbox>
+            </Flex>
+            <FormControl mt="2">
+              <FormLabel fontSize="sm" fontWeight="500" color={textColor}>
+                Additional Danger Signs (comma separated)
+              </FormLabel>
+              <Input
+                name="additionalDangerSigns"
+                value={formData.additionalDangerSigns}
+                onChange={handleInputChange}
+                variant="flushed"
+              />
+            </FormControl>
+          </Box>
+          <Box mb="4">
+            <Text fontWeight="bold" mb="2" color={textColor}>
+              Complications
+            </Text>
+            <Flex gap="10px" wrap="wrap">
+              <Checkbox
+                name="retino"
+                colorScheme="purple"
+                isChecked={formData.complicationsChecked.retino}
+                onChange={handleCheckboxChange(
+                  "complicationsChecked",
+                  "retino"
+                )}
+              >
+                Retinopathy
+              </Checkbox>
+              <Checkbox
+                name="nephro"
+                colorScheme="purple"
+                isChecked={formData.complicationsChecked.nephro}
+                onChange={handleCheckboxChange(
+                  "complicationsChecked",
+                  "nephro"
+                )}
+              >
+                Nephropathy
+              </Checkbox>
+              <Checkbox
+                name="neuro"
+                colorScheme="purple"
+                isChecked={formData.complicationsChecked.neuro}
+                onChange={handleCheckboxChange("complicationsChecked", "neuro")}
+              >
+                Neuropathy
+              </Checkbox>
+              <Checkbox
+                name="footulcer"
+                colorScheme="purple"
+                isChecked={formData.complicationsChecked.footulcer}
+                onChange={handleCheckboxChange(
+                  "complicationsChecked",
+                  "footulcer"
+                )}
+              >
+                Foot Ulcer
+              </Checkbox>
+            </Flex>
+            <FormControl mt="2">
+              <FormLabel fontSize="sm" fontWeight="500" color={textColor}>
+                Additional Complications (comma separated)
+              </FormLabel>
+              <Input
+                name="additionalComplications"
+                value={formData.additionalComplications}
+                onChange={handleInputChange}
+                variant="flushed"
+              />
+            </FormControl>
+          </Box>
+          <Box mb="4">
+            <Text fontWeight="bold" mb="2" color={textColor}>
+              Co-morbidity
+            </Text>
+            <Flex gap="10px" wrap="wrap">
+              <Checkbox
+                name="hiv"
+                colorScheme="purple"
+                isChecked={formData.comorbiditiesChecked.hiv}
+                onChange={handleCheckboxChange("comorbiditiesChecked", "hiv")}
+              >
+                HIV
+              </Checkbox>
+              <Checkbox
+                name="htn"
+                colorScheme="purple"
+                isChecked={formData.comorbiditiesChecked.htn}
+                onChange={handleCheckboxChange("comorbiditiesChecked", "htn")}
+              >
+                Hypertension
+              </Checkbox>
+              <Checkbox
+                name="liver"
+                colorScheme="purple"
+                isChecked={formData.comorbiditiesChecked.liver}
+                onChange={handleCheckboxChange("comorbiditiesChecked", "liver")}
+              >
+                Liver Disease
+              </Checkbox>
+              <Checkbox
+                name="prego"
+                colorScheme="purple"
+                isChecked={formData.comorbiditiesChecked.prego}
+                onChange={handleCheckboxChange("comorbiditiesChecked", "prego")}
+              >
+                Pregnant
+              </Checkbox>
+            </Flex>
+            <FormControl mt="2">
+              <FormLabel fontSize="sm" fontWeight="500" color={textColor}>
+                Additional Co-morbidities (comma separated)
+              </FormLabel>
+              <Input
+                name="additionalComorbidities"
+                value={formData.additionalComorbidities}
+                onChange={handleInputChange}
+                variant="flushed"
+              />
+            </FormControl>
+          </Box>
         </ModalBody>
         <ModalFooter>
           <Button variant="purple" size="lg" mr={3} onClick={handleSave}>
@@ -345,6 +599,9 @@ export default function AdditionalInfoTable({ patient }) {
   const textColor = useColorModeValue("secondaryGray.900", "white");
   const borderColor = useColorModeValue("gray.200", "whiteAlpha.100");
   const hoverBg = useColorModeValue("gray.100", "gray.700");
+
+  //API
+  const [apiHost, setApiHost] = useState("");
 
   // Disclosures for modals.
   const {
@@ -457,6 +714,42 @@ export default function AdditionalInfoTable({ patient }) {
           </Text>
         ),
       }),
+
+      columnHelper.accessor("clinicalSymp", {
+        id: "clinicalSymp",
+        header: ({ column }) => (
+          <Flex
+            cursor="pointer"
+            onClick={column.getToggleSortingHandler()}
+            align="center"
+            px="3px"
+          >
+            <Text fontSize="sm" color="gray.400">
+              Clinical Symptoms
+            </Text>
+            {column.getIsSorted() === "asc"
+              ? " ⬆"
+              : column.getIsSorted() === "desc"
+              ? " ⬇"
+              : null}
+          </Flex>
+        ),
+        cell: (info) => (
+          <Box>
+            {Array.isArray(info.getValue()) ? (
+              info.getValue().map((item, index) => (
+                <Text key={index} fontSize="sm" color={textColor}>
+                  {item}
+                </Text>
+              ))
+            ) : (
+              <Text fontSize="sm" color={textColor}>
+                {info.getValue()}
+              </Text>
+            )}
+          </Box>
+        ),
+      }),
       columnHelper.accessor("complications", {
         id: "complications",
         header: ({ column }) => (
@@ -562,41 +855,6 @@ export default function AdditionalInfoTable({ patient }) {
           </Box>
         ),
       }),
-      columnHelper.accessor("clinicalSymp", {
-        id: "clinicalSymp",
-        header: ({ column }) => (
-          <Flex
-            cursor="pointer"
-            onClick={column.getToggleSortingHandler()}
-            align="center"
-            px="3px"
-          >
-            <Text fontSize="sm" color="gray.400">
-              Clinical Symptoms
-            </Text>
-            {column.getIsSorted() === "asc"
-              ? " ⬆"
-              : column.getIsSorted() === "desc"
-              ? " ⬇"
-              : null}
-          </Flex>
-        ),
-        cell: (info) => (
-          <Box>
-            {Array.isArray(info.getValue()) ? (
-              info.getValue().map((item, index) => (
-                <Text key={index} fontSize="sm" color={textColor}>
-                  {item}
-                </Text>
-              ))
-            ) : (
-              <Text fontSize="sm" color={textColor}>
-                {info.getValue()}
-              </Text>
-            )}
-          </Box>
-        ),
-      }),
       // Action column: includes Edit and Delete buttons.
       columnHelper.display({
         id: "action",
@@ -677,6 +935,13 @@ export default function AdditionalInfoTable({ patient }) {
   const paginatedRows = table
     .getRowModel()
     .rows.slice(currentPage * pageSize, (currentPage + 1) * pageSize);
+  // Load the host URL from a text file (placed in your public folder as apiHost.txt)
+  useEffect(() => {
+    fetch("/apiHost.txt")
+      .then((res) => res.text())
+      .then((text) => setApiHost(text.trim()))
+      .catch((err) => console.error("Error loading API host:", err));
+  }, []);
 
   const handleModalSave = async (updatedData) => {
     const payload = {
@@ -690,8 +955,9 @@ export default function AdditionalInfoTable({ patient }) {
     };
 
     try {
+      if (!apiHost) return;
       const response = await fetch(
-        "https://mediqo-api.onrender.com/editDiabPatientAdditionalInfo",
+        apiHost + "/editDiabPatientAdditionalInfo",
         // "http://localhost:3001/editDiabPatientAdditionalInfo",
         {
           method: "POST",
@@ -717,8 +983,9 @@ export default function AdditionalInfoTable({ patient }) {
     };
 
     try {
+      if (!apiHost) return;
       const response = await fetch(
-        "https://mediqo-api.onrender.com/deleteDiabPatientAdditionalInfo",
+        apiHost + "/deleteDiabPatientAdditionalInfo",
         // "http://localhost:3001/deleteDiabPatientAdditionalInfo",
         {
           method: "POST",

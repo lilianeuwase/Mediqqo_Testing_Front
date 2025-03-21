@@ -36,11 +36,22 @@ function PatientVitalSigns({ isOpen, onClose }) {
   // State for fetched patient data
   const patient = DiabPatientData();
 
-  // Modal state for centered pop-up notifications
+  // Modal state for notifications
   const [modalOpen, setModalOpen] = useState(false);
   const [modalTitle, setModalTitle] = useState("");
   const [modalMessage, setModalMessage] = useState("");
   const [isSuccess, setIsSuccess] = useState(false);
+
+  // Load API host state
+  const [apiHost, setApiHost] = useState("");
+
+  // Load the host URL from a text file (placed in your public folder as apiHost.txt)
+  useEffect(() => {
+    fetch("/apiHost.txt")
+      .then((res) => res.text())
+      .then((text) => setApiHost(text.trim()))
+      .catch((err) => console.error("Error loading API host:", err));
+  }, []);
 
   const validateVitals = () => {
     let newErrors = {};
@@ -135,24 +146,24 @@ function PatientVitalSigns({ isOpen, onClose }) {
         : null;
 
     fetch(
-      "https://mediqo-api.onrender.com/registerDiabPatientVitalSigns", 
-      // "http://localhost:3001/registerDiabPatientVitalSigns", 
+      `${apiHost}/registerDiabPatientVitalSigns`,
       {
-      method: "POST",
-      headers: { "Content-Type": "application/json" },
-      body: JSON.stringify({
-        phone_number: patientPhone,
-        vitalsDates: todayDate,
-        height,
-        weight,
-        bmi: bmiCalculated,
-        temp,
-        BP,
-        HR,
-        RR,
-        O2,
-      }),
-    })
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({
+          phone_number: patientPhone,
+          vitalsDates: todayDate,
+          height,
+          weight,
+          bmi: bmiCalculated,
+          temp,
+          BP,
+          HR,
+          RR,
+          O2,
+        }),
+      }
+    )
       .then((res) => res.json())
       .then((data) => {
         if (data.status === "ok") {

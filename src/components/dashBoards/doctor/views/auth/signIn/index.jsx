@@ -41,11 +41,22 @@ function SignIn() {
   const [show, setShow] = useState(false);
   const handleClick = () => setShow(!show);
 
+  const [apiHost, setApiHost] = useState("");
+
+  // Load the host URL from a text file (placed in your public folder as apiHost.txt)
+  useEffect(() => {
+    fetch("/apiHost.txt")
+      .then((res) => res.text())
+      .then((text) => setApiHost(text.trim()))
+      .catch((err) => console.error("Error loading API host:", err));
+  }, []);
+
   // When the "Retrieving data" overlay is active, wait 2 seconds then call the /userData API
   useEffect(() => {
+    if (!apiHost) return;
     if (showRetrievingPopup) {
       const timer = setTimeout(() => {
-        fetch("http://localhost:3001/userData", {
+         fetch(apiHost + "/userData", {
           method: "POST",
           crossDomain: true,
           headers: {
@@ -85,7 +96,7 @@ function SignIn() {
     setPasswordError("");
 
     // Login API call
-    fetch("http://localhost:3001/login-user", {
+    fetch(apiHost + "/login-user", {
       method: "POST",
       crossDomain: true,
       headers: {

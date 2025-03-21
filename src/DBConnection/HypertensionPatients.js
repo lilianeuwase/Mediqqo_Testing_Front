@@ -7,17 +7,27 @@ export function HypertensionPatients() {
   const [data, setData] = useState([]);
   const [limit, setLimit] = useState(100);
   const [pageCount, setPageCount] = useState(1);
+  const [apiHost, setApiHost] = useState("");
   const currentPage = useRef();
+
+  // Load the host URL from a text file (placed in your public folder as apiHost.txt)
+  useEffect(() => {
+    fetch("/apiHost.txt")
+      .then((res) => res.text())
+      .then((text) => setApiHost(text.trim()))
+      .catch((err) => console.error("Error loading API host:", err));
+  }, []);
 
   useEffect(() => {
     currentPage.current = 1;
-    getPaginatedPatients();
-  }, []);
+    if (apiHost) {
+      getPaginatedPatients();
+    }
+  }, [apiHost]);
 
   function getPaginatedPatients() {
     fetch(
-      `https://mediqo-api.onrender.com/paginatedHyperPatients?page=${currentPage.current}&limit=${limit}`,
-      // `http://localhost:3001/paginatedHyperPatients?page=${currentPage.current}&limit=${limit}`,
+      `${apiHost}/paginatedHyperPatients?page=${currentPage.current}&limit=${limit}`,
       {
         method: "GET",
       }

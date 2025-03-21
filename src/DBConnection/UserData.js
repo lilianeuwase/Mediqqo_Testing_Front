@@ -12,22 +12,28 @@ export function UserData() {
   const [nurse, setNurse] = useState(false);
   const [labtech, setLabtech] = useState(false);
   const [pharmacist, setPharmacist] = useState(false);
+  const [apiHost, setApiHost] = useState("");
 
   // Function to render the SignIn component via a portal when token is expired
   const showSignInComponent = () => {
     const container = document.createElement("div");
     document.body.appendChild(container);
-    ReactDOM.render(
-      <SignIn />,
-      container
-    );
+    ReactDOM.render(<SignIn />, container);
   };
 
+  // Load the host URL from a text file (placed in your public folder as apiHost.txt)
   useEffect(() => {
-    fetch(
-      "https://mediqo-api.onrender.com/userData", 
-      // "http://localhost:3001/userData", 
-      {
+    fetch("/apiHost.txt")
+      .then((res) => res.text())
+      .then((text) => setApiHost(text.trim()))
+      .catch((err) => console.error("Error loading API host:", err));
+  }, []);
+
+  // Fetch user data only after apiHost is loaded
+  useEffect(() => {
+    if (!apiHost) return;
+
+    fetch(apiHost + "/userData", {
       method: "POST",
       crossDomain: true,
       headers: {
@@ -74,7 +80,7 @@ export function UserData() {
         setUserData(data.data);
         userTable = data.data;
       });
-  }, []);
+  }, [apiHost]);
 
   return userTable;
 }

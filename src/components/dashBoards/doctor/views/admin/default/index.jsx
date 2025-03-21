@@ -63,127 +63,115 @@ export default function UserReports() {
 
   // Calculate Male & Female Counts + Percentage Bars
   const diabetesStats = {
-    males: countPatients(
-      diabetesPatients,
-      (p) => p.gender?.toLowerCase() === "male"
-    ),
-    malesBar: totalDiabetesPatients
-      ? (countPatients(
-          diabetesPatients,
-          (p) => p.gender?.toLowerCase() === "male"
-        ) /
-          totalDiabetesPatients) *
-        100
-      : 0,
-    females: countPatients(
-      diabetesPatients,
-      (p) => p.gender?.toLowerCase() === "female"
-    ),
-    femalesBar: totalDiabetesPatients
-      ? (countPatients(
-          diabetesPatients,
-          (p) => p.gender?.toLowerCase() === "female"
-        ) /
-          totalDiabetesPatients) *
-        100
-      : 0,
-    hiv: countPatients(diabetesPatients, (p) => p.hiv.at(-1) === true),
-    hivBar: totalDiabetesPatients
-      ? (countPatients(diabetesPatients, (p) => p.hiv.at(-1) === true) /
-          totalDiabetesPatients) *
-        100
-      : 0,
-    htn: countPatients(diabetesPatients, (p) => p.htn.at(-1) === true),
-    htnBar: totalDiabetesPatients
-      ? (countPatients(diabetesPatients, (p) => p.htn.at(-1) === true) /
-          totalDiabetesPatients) *
-        100
-      : 0,
-  };
+  males: countPatients(
+    diabetesPatients,
+    (p) => p.gender?.toLowerCase() === "male"
+  ),
+  malesBar: totalDiabetesPatients
+    ? (countPatients(
+        diabetesPatients,
+        (p) => p.gender?.toLowerCase() === "male"
+      ) / totalDiabetesPatients) * 100
+    : 0,
+  females: countPatients(
+    diabetesPatients,
+    (p) => p.gender?.toLowerCase() === "female"
+  ),
+  femalesBar: totalDiabetesPatients
+    ? (countPatients(
+        diabetesPatients,
+        (p) => p.gender?.toLowerCase() === "female"
+      ) / totalDiabetesPatients) * 100
+    : 0,
+  hiv: countPatients(diabetesPatients, (p) => p.hiv?.at(-1) === true),
+  hivBar: totalDiabetesPatients
+    ? (countPatients(diabetesPatients, (p) => p.hiv?.at(-1) === true) /
+        totalDiabetesPatients) *
+      100
+    : 0,
+  htn: countPatients(diabetesPatients, (p) => p.htn?.at(-1) === true),
+  htnBar: totalDiabetesPatients
+    ? (countPatients(diabetesPatients, (p) => p.htn?.at(-1) === true) /
+        totalDiabetesPatients) *
+      100
+    : 0,
+};
 
-  const hypertensionStats = {
-    males: countPatients(
-      hypertensionPatients,
-      (p) => p.gender?.toLowerCase() === "male"
-    ),
-    malesBar: totalHypertensionPatients
-      ? (countPatients(
-          hypertensionPatients,
-          (p) => p.gender?.toLowerCase() === "male"
-        ) /
-          totalHypertensionPatients) *
-        100
-      : 0,
-    females: countPatients(
-      hypertensionPatients,
-      (p) => p.gender?.toLowerCase() === "female"
-    ),
-    femalesBar: totalHypertensionPatients
-      ? (countPatients(
-          hypertensionPatients,
-          (p) => p.gender?.toLowerCase() === "female"
-        ) /
-          totalHypertensionPatients) *
-        100
-      : 0,
-    hiv: countPatients(hypertensionPatients, (p) => p.hiv.at(-1) === true),
-    hivBar: totalHypertensionPatients
-      ? (countPatients(hypertensionPatients, (p) => p.hiv.at(-1) === true) /
-          totalHypertensionPatients) *
-        100
-      : 0,
-    kd: countPatients(
-      hypertensionPatients,
-      (p) => p.proteinuria.at(-1) === true
-    ),
-    kdBar: totalHypertensionPatients
-      ? (countPatients(
-          hypertensionPatients,
-          (p) => p.proteinuria.at(-1) === true
-        ) /
-          totalHypertensionPatients) *
-        100
-      : 0,
-  };
+const hypertensionStats = {
+  males: countPatients(
+    hypertensionPatients,
+    (p) => p.gender?.toLowerCase() === "male"
+  ),
+  malesBar: totalHypertensionPatients
+    ? (countPatients(
+        hypertensionPatients,
+        (p) => p.gender?.toLowerCase() === "male"
+      ) / totalHypertensionPatients) * 100
+    : 0,
+  females: countPatients(
+    hypertensionPatients,
+    (p) => p.gender?.toLowerCase() === "female"
+  ),
+  femalesBar: totalHypertensionPatients
+    ? (countPatients(
+        hypertensionPatients,
+        (p) => p.gender?.toLowerCase() === "female"
+      ) / totalHypertensionPatients) * 100
+    : 0,
+  hiv: countPatients(hypertensionPatients, (p) => p.hiv?.at(-1) === true),
+  hivBar: totalHypertensionPatients
+    ? (countPatients(hypertensionPatients, (p) => p.hiv?.at(-1) === true) /
+        totalHypertensionPatients) *
+      100
+    : 0,
+  kd: countPatients(
+    hypertensionPatients,
+    (p) => p.proteinuria?.at(-1) === true
+  ),
+  kdBar: totalHypertensionPatients
+    ? (countPatients(
+        hypertensionPatients,
+        (p) => p.proteinuria?.at(-1) === true
+      ) / totalHypertensionPatients) *
+      100
+    : 0,
+};
 
-  const asthmaStats = {
-    males: countPatients(
-      asthmaPatients,
-      (p) => p.gender?.toLowerCase() === "male"
-    ),
-    malesBar: totalAsthmaPatients
-      ? (countPatients(
-          asthmaPatients,
-          (p) => p.gender?.toLowerCase() === "male"
-        ) /
-          totalAsthmaPatients) *
-        100
-      : 0,
-    females: countPatients(
-      asthmaPatients,
-      (p) => p.gender?.toLowerCase() === "female"
-    ),
-    femalesBar: totalAsthmaPatients
-      ? (countPatients(
-          asthmaPatients,
-          (p) => p.gender?.toLowerCase() === "female"
-        ) /
-          totalAsthmaPatients) *
-        100
-      : 0,
-    hiv: countPatients(asthmaPatients, (p) => p.hiv.at(-1) === true),
-    hivBar: totalAsthmaPatients
-      ? (countPatients(asthmaPatients, (p) => p.hiv.at(-1) === true) /
-          totalAsthmaPatients) *
-        100
-      : 0,
-    obese: countPatients(asthmaPatients, (p) => p.obese === true),
-    obeseBar: totalAsthmaPatients
-      ? (countPatients(asthmaPatients, (p) => p.obese === true) /
-          totalAsthmaPatients) *
-        100
-      : 0,
-  };
+const asthmaStats = {
+  males: countPatients(
+    asthmaPatients,
+    (p) => p.gender?.toLowerCase() === "male"
+  ),
+  malesBar: totalAsthmaPatients
+    ? (countPatients(
+        asthmaPatients,
+        (p) => p.gender?.toLowerCase() === "male"
+      ) / totalAsthmaPatients) * 100
+    : 0,
+  females: countPatients(
+    asthmaPatients,
+    (p) => p.gender?.toLowerCase() === "female"
+  ),
+  femalesBar: totalAsthmaPatients
+    ? (countPatients(
+        asthmaPatients,
+        (p) => p.gender?.toLowerCase() === "female"
+      ) / totalAsthmaPatients) * 100
+    : 0,
+  hiv: countPatients(asthmaPatients, (p) => p.hiv?.at(-1) === true),
+  hivBar: totalAsthmaPatients
+    ? (countPatients(asthmaPatients, (p) => p.hiv?.at(-1) === true) /
+        totalAsthmaPatients) *
+      100
+    : 0,
+  obese: countPatients(asthmaPatients, (p) => p.obese === true),
+  obeseBar: totalAsthmaPatients
+    ? (countPatients(asthmaPatients, (p) => p.obese === true) /
+        totalAsthmaPatients) *
+      100
+    : 0,
+};
+
 
   const stats = {
     diabetes: diabetesStats,
