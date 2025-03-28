@@ -325,10 +325,10 @@ export default function DiabResultTable({ patient }) {
             <Box>
               {Array.isArray(dosage) ? (
                 dosage.map((d, i) => (
-                  <Text key={i}>{toTitleCase(d)}</Text>
+                  <Text key={i} fontSize="sm" color={textColor} >{toTitleCase(d)}</Text>
                 ))
               ) : (
-                <Text>{toTitleCase(dosage)}</Text>
+                <Text fontSize="sm" color={textColor}>{toTitleCase(dosage)}</Text>
               )}
             </Box>
           );
@@ -383,9 +383,9 @@ export default function DiabResultTable({ patient }) {
           return (
             <Box>
               {Array.isArray(rc) ? (
-                rc.map((r, i) => <Text key={i}>{r}</Text>)
+                rc.map((r, i) => <Text key={i} fontSize="sm" color={textColor}>{r}</Text>)
               ) : (
-                <Text>{rc}</Text>
+                <Text fontSize="sm" color={textColor}>{rc}</Text>
               )}
             </Box>
           );

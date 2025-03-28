@@ -81,7 +81,9 @@ const DiabResultCalculate = ({ patient }) => {
   const [apiHost, setApiHost] = useState("");
   const [alertMsg, setAlertMsg] = useState("");
   // Use patient.consultations (from the DB) for consultation count.
-  const [processedCount, setProcessedCount] = useState(patient.consultations || 0);
+  const [processedCount, setProcessedCount] = useState(
+    patient.consultations || 0
+  );
 
   const dismissError = () => setError(null);
 
@@ -148,17 +150,24 @@ const DiabResultCalculate = ({ patient }) => {
         continue;
       }
 
-      const flattenedDangerSigns = patient.dangerSigns ? patient.dangerSigns.flat() : [];
-      const flattenedComorbidities = patient.comorbidities ? patient.comorbidities.flat() : [];
-      const flattenedComplications = patient.complications ? patient.complications.flat() : [];
+      const flattenedDangerSigns = patient.dangerSigns
+        ? patient.dangerSigns.flat()
+        : [];
+      const flattenedComorbidities = patient.comorbidities
+        ? patient.comorbidities.flat()
+        : [];
+      const flattenedComplications = patient.complications
+        ? patient.complications.flat()
+        : [];
 
-      const severeDanger = flattenedDangerSigns.some((sign) =>
-        typeof sign === "string" &&
-        (sign.toLowerCase() === "dehydration" ||
-          sign.toLowerCase() === "abdominal pain" ||
-          sign.toLowerCase() === "hypoglycemia" ||
-          sign.toLowerCase() === "shortness of breath" ||
-          sign.toLowerCase() === "confusion")
+      const severeDanger = flattenedDangerSigns.some(
+        (sign) =>
+          typeof sign === "string" &&
+          (sign.toLowerCase() === "dehydration" ||
+            sign.toLowerCase() === "abdominal pain" ||
+            sign.toLowerCase() === "hypoglycemia" ||
+            sign.toLowerCase() === "shortness of breath" ||
+            sign.toLowerCase() === "confusion")
       );
 
       let diagnosis = "";
@@ -173,18 +182,21 @@ const DiabResultCalculate = ({ patient }) => {
         const immediateTransfer =
           gluValue > 400 ||
           flattenedComorbidities.some(
-            (c) => typeof c === "string" && c.toLowerCase().includes("pregnancy")
+            (c) =>
+              typeof c === "string" && c.toLowerCase().includes("pregnancy")
           ) ||
           flattenedComplications.some(
             (c) =>
               typeof c === "string" &&
-              (c.toLowerCase().includes("renal") || c.toLowerCase().includes("foot ulcer"))
+              (c.toLowerCase().includes("renal") ||
+                c.toLowerCase().includes("foot ulcer"))
           ) ||
           patient.age < 18;
 
         if (immediateTransfer) {
           diagnosis = "Diabetes";
-          patient_manage = "Transfer patients to the hospital to initiate insulin";
+          patient_manage =
+            "Transfer patients to the hospital to initiate insulin";
           medication = "Insulin Therapy";
           resultComment =
             "Immediate transfer: criteria met (>400 mg/dL, pregnancy, renal/foot ulcer, or age <18).";
@@ -192,9 +204,15 @@ const DiabResultCalculate = ({ patient }) => {
         } else {
           if (fastValue >= 126 || gluValue >= 126 || hbValue >= 6.5) {
             if (fastValue >= 200 || gluValue >= 200 || hbValue >= 7.5) {
-              if (fastValue > 400 || gluValue > 400 || hbValue > 8 || severeDanger) {
+              if (
+                fastValue > 400 ||
+                gluValue > 400 ||
+                hbValue > 8 ||
+                severeDanger
+              ) {
                 diagnosis = "Diabetes";
-                patient_manage = "Transfer patients to the hospital to initiate insulin";
+                patient_manage =
+                  "Transfer patients to the hospital to initiate insulin";
                 medication = "Insulin Therapy";
                 resultComment = "Severe condition: immediate action required.";
                 dosageTriple = makeInsulinDosage(fastValue);
@@ -204,14 +222,17 @@ const DiabResultCalculate = ({ patient }) => {
                 medication = "Oral Therapy";
                 resultComment = "Diabetes confirmed with high lab values.";
                 const currentBMI =
-                  patient.bmi && patient.bmi[i] ? parseFloat(patient.bmi[i]) : 0;
+                  patient.bmi && patient.bmi[i]
+                    ? parseFloat(patient.bmi[i])
+                    : 0;
                 dosageTriple = makeOralDosage(currentBMI);
               }
             } else {
               diagnosis = "Second Consultation is Needed to Confirm";
               patient_manage = "Follow Up Visit in 2-4 Weeks";
               medication = "None";
-              resultComment = "Second consultation needed to confirm diagnosis.";
+              resultComment =
+                "Second consultation needed to confirm diagnosis.";
             }
           } else {
             diagnosis = "No Diabetes";
@@ -229,11 +250,15 @@ const DiabResultCalculate = ({ patient }) => {
             : "";
         if (
           patient.diagnosis &&
-          patient.diagnosis[i - 1] === "Second Consultation is Needed to Confirm"
+          patient.diagnosis[i - 1] ===
+            "Second Consultation is Needed to Confirm"
         ) {
           const prevFastValue = parseFloat(patient.fastglucose[i - 1]);
           const prevHbValue = parseFloat(patient.hb[i - 1]);
-          if ((prevFastValue > 126 && fastValue > 126) || (prevHbValue > 6.5 && hbValue > 6.5)) {
+          if (
+            (prevFastValue > 126 && fastValue > 126) ||
+            (prevHbValue > 6.5 && hbValue > 6.5)
+          ) {
             diagnosis = "Diabetes";
             patient_manage = "Manage as an Outpatient (OPD)";
             medication = "Oral Therapy";
@@ -245,26 +270,36 @@ const DiabResultCalculate = ({ patient }) => {
             const immediateTransfer =
               gluValue > 400 ||
               flattenedComorbidities.some(
-                (c) => typeof c === "string" && c.toLowerCase().includes("pregnancy")
+                (c) =>
+                  typeof c === "string" && c.toLowerCase().includes("pregnancy")
               ) ||
               flattenedComplications.some(
                 (c) =>
                   typeof c === "string" &&
-                  (c.toLowerCase().includes("renal") || c.toLowerCase().includes("foot ulcer"))
+                  (c.toLowerCase().includes("renal") ||
+                    c.toLowerCase().includes("foot ulcer"))
               ) ||
               patient.age < 18;
             if (immediateTransfer) {
               diagnosis = "Diabetes";
-              patient_manage = "Transfer patients to the hospital to initiate insulin";
+              patient_manage =
+                "Transfer patients to the hospital to initiate insulin";
               medication = "Insulin Therapy";
-              resultComment = "Immediate transfer on reconsultation: criteria met.";
+              resultComment =
+                "Immediate transfer on reconsultation: criteria met.";
               dosageTriple = makeInsulinDosage(fastValue);
             } else {
               if (fastValue >= 126 || gluValue >= 126 || hbValue >= 6.5) {
                 if (fastValue >= 200 || gluValue >= 200 || hbValue >= 7.5) {
-                  if (fastValue > 400 || gluValue > 400 || hbValue > 8 || severeDanger) {
+                  if (
+                    fastValue > 400 ||
+                    gluValue > 400 ||
+                    hbValue > 8 ||
+                    severeDanger
+                  ) {
                     diagnosis = "Diabetes";
-                    patient_manage = "Transfer patients to the hospital to initiate insulin";
+                    patient_manage =
+                      "Transfer patients to the hospital to initiate insulin";
                     medication = "Insulin Therapy";
                     resultComment = "Severe condition on reconsultation.";
                     dosageTriple = makeInsulinDosage(fastValue);
@@ -274,7 +309,9 @@ const DiabResultCalculate = ({ patient }) => {
                     medication = "Oral Therapy";
                     resultComment = "Diabetes confirmed on reconsultation.";
                     const currentBMI =
-                      patient.bmi && patient.bmi[i] ? parseFloat(patient.bmi[i]) : 0;
+                      patient.bmi && patient.bmi[i]
+                        ? parseFloat(patient.bmi[i])
+                        : 0;
                     dosageTriple = makeOralDosage(currentBMI);
                   }
                 } else {
@@ -298,9 +335,10 @@ const DiabResultCalculate = ({ patient }) => {
           resultComment = "Immediate attention required for hypoglycemia.";
           if (prevMed && prevMed.toLowerCase().includes("insulin")) {
             const prevDosage =
-              patient.dosage && patient.dosage.length > 0
-                ? patient.dosage[patient.dosage.length - 1]
+              patient.dosage && patient.dosage[i - 1]
+                ? patient.dosage[i - 1]
                 : ["", "", ""];
+            // Use the baseline dosage rather than compounding adjustments
             dosageTriple = adjustDosage(prevDosage, -15);
             resultComment += " Instruct patient to carry sugary drink";
           } else {
@@ -313,9 +351,10 @@ const DiabResultCalculate = ({ patient }) => {
           resultComment = "Adjust medication as needed.";
           if (prevMed && prevMed.toLowerCase().includes("insulin")) {
             const prevDosage =
-              patient.dosage && patient.dosage.length > 0
-                ? patient.dosage[patient.dosage.length - 1]
+              patient.dosage && patient.dosage[i - 1]
+                ? patient.dosage[i - 1]
                 : ["", "", ""];
+            // Again, adjust based on the stored baseline if available.
             dosageTriple = adjustDosage(prevDosage, 15);
             medication = "Insulin Therapy";
           } else {
@@ -327,15 +366,60 @@ const DiabResultCalculate = ({ patient }) => {
         }
       }
 
+      // ----- Insert new control logic for consultations beyond the first -----
+      if (i > 0) {
+        if (gluValue > 400) {
+          control = "Emergency Control";
+          medication = "Requires emergency attention!";
+        } else if (
+          (fastValue >= 150 && fastValue <= 180) ||
+          (hbValue >= 7.5 && hbValue <= 8.0)
+        ) {
+          control = "Good Control";
+          if (medication.toLowerCase().includes("insulin")) {
+            patient_manage = "Maintain insulin dose";
+            resultComment +=
+              " Monitor blood glucose with twice daily urine dipsticks";
+          } else {
+            patient_manage = "No medication/insulin changes required";
+            medication = "";
+          }
+        } else if (fastValue > 185 || hbValue > 8.0) {
+          control = "Poor Control";
+          if (medication.toLowerCase().includes("insulin")) {
+            const prevDosage =
+              patient.dosage && patient.dosage.length > 0
+                ? patient.dosage[patient.dosage.length - 1]
+                : ["", "", ""];
+            dosageTriple = adjustDosage(prevDosage, 15);
+            resultComment +=
+              " Monitor with twice daily fingersticks for 2 weeks, Patients should follow-up";
+            patient_manage +=
+              " Monitor with twice daily fingersticks for 2 weeks, Patients should follow-up";
+          } else {
+            patient_manage = "Medication/Insulin titrations required";
+            medication = "Medication/Insulin titrations required";
+          }
+        }
+      }
+
+      // If this consultation has already been processed, use the stored dosage
+      // so that we don't reapply adjustments.
+      if (i < existingCount && patient.dosage && patient.dosage[i]) {
+        dosageTriple = patient.dosage[i];
+      }
+
       // For existing consultations (based on DB field patient.consultations), update via edit API.
       if (i < existingCount) {
         updatedConsultations++;
         const payload = {
           phone_number: patient.phone_number,
           recordIndex: i,
+          diagnosis, // include recalculated diagnosis
           patient_manage,
           medication,
           dosage: dosageTriple,
+          control, // include recalculated control
           resultComment,
         };
         try {
@@ -377,7 +461,7 @@ const DiabResultCalculate = ({ patient }) => {
         }
       }
     }
-  
+
     // If previously processed count is greater than current complete consultations,
     // delete the extra results (loop in reverse).
     if (oldProcessedCount > fullCircleCount) {
@@ -400,16 +484,17 @@ const DiabResultCalculate = ({ patient }) => {
         }
       }
     }
-  
+
     // Update processedCount to reflect current complete consultations.
     setProcessedCount(fullCircleCount);
     setProcessing(false);
-  
+
     let message = "";
     if (newConsultations === 0 && updatedConsultations > 0) {
       message = "No new consultations to process. Results have been updated.";
     } else if (newConsultations > 0 && updatedConsultations > 0) {
-      message = "New consultations processed. Existing results have been updated.";
+      message =
+        "New consultations processed. Existing results have been updated.";
     } else if (newConsultations > 0) {
       message = "New consultations processed.";
     } else {
@@ -419,7 +504,7 @@ const DiabResultCalculate = ({ patient }) => {
       message += " Extra results have been deleted.";
     }
     setAlertMsg(message);
-  
+
     // Optionally reload the page after a short delay.
     setTimeout(() => {
       window.location.reload();

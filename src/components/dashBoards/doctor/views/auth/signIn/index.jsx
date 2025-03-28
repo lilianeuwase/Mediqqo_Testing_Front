@@ -24,8 +24,12 @@ import { RiEyeCloseLine } from "react-icons/ri";
 import DefaultAuth from "../../../layouts/auth/Default";
 // Assets
 import illustration from "../../../assets/img/auth/auth2.png";
+import AlertPopUp from "../../../components/alertPopUp";
 
 function SignIn() {
+  //Unreachable Server
+  const [serverError, setServerError] = useState("");
+
   // Login input and error states
   const [uniqueID, setUniqueID] = useState("");
   const [password, setPassword] = useState("");
@@ -56,7 +60,7 @@ function SignIn() {
     if (!apiHost) return;
     if (showRetrievingPopup) {
       const timer = setTimeout(() => {
-         fetch(apiHost + "/userData", {
+        fetch(apiHost + "/userData", {
           method: "POST",
           crossDomain: true,
           headers: {
@@ -70,7 +74,6 @@ function SignIn() {
         })
           .then((res) => res.json())
           .then((data) => {
-            // If API returns valid user data, redirect to /admin/default regardless of userType
             if (data.status === "ok" && data.data) {
               window.location.href = "/admin/default";
             } else {
@@ -81,21 +84,34 @@ function SignIn() {
           .catch((error) => {
             console.error("Error fetching user data", error);
             setShowRetrievingPopup(false);
-            setShowUnrecognizedPopup(true);
+            if (
+              error.message &&
+              error.message.toLowerCase().includes("failed to fetch")
+            ) {
+              setServerError("Server unreachable. Please try again later.");
+            } else {
+              setShowUnrecognizedPopup(true);
+            }
           });
       }, 1000);
       return () => clearTimeout(timer);
     }
-  }, [showRetrievingPopup]);
+  }, [showRetrievingPopup, apiHost]);
 
   // Submit handler for login
   function handleSubmit(e) {
     e.preventDefault();
-    // Reset error messages
     setUniqueIDError("");
     setPasswordError("");
+    setServerError(""); // clear any previous server error
 
-    // Login API call
+    // Create an AbortController to handle request timeout
+    const controller = new AbortController();
+    const signal = controller.signal;
+
+    // Set a timeout to abort the request after 10 seconds
+    const timeoutId = setTimeout(() => controller.abort(), 3000); // 10 seconds
+
     fetch(apiHost + "/login-user", {
       method: "POST",
       crossDomain: true,
@@ -104,22 +120,20 @@ function SignIn() {
         Accept: "application/json",
         "Access-Control-Allow-Origin": "*",
       },
-      body: JSON.stringify({
-        uniqueID,
-        password,
-      }),
+      body: JSON.stringify({ uniqueID, password }),
+      signal, // pass the signal to fetch
     })
-      .then((res) => res.json())
+      .then((res) => {
+        clearTimeout(timeoutId); // Clear the timeout once a response is received
+        return res.json();
+      })
       .then((data) => {
-        console.log(data, "userRegister");
         if (data.status === "ok") {
-          // Step 1: Show "Logging in successfully" overlay for 2 seconds
           setShowSuccessPopup(true);
           setTimeout(() => {
             const token = data.data;
             window.localStorage.setItem("token", token);
             window.localStorage.setItem("loggedIn", true);
-            // Step 2: Hide success overlay and wait 2 seconds before showing "Retrieving data" overlay
             setShowSuccessPopup(false);
             setTimeout(() => {
               setShowRetrievingPopup(true);
@@ -140,9 +154,22 @@ function SignIn() {
         }
       })
       .catch((err) => {
-        console.error("Error during login", err);
-        setUniqueIDError("An error occurred. Please try again.");
-        setPasswordError("An error occurred. Please try again.");
+        clearTimeout(timeoutId);
+        console.error("Error during login:", err);
+        console.error("Error message:", err.message);
+        if (
+          err.name === "AbortError" ||
+          (err.message && err.message.toLowerCase().includes("failed to fetch"))
+        ) {
+          setServerError(
+            "Server unreachable. Please contact your administrator."
+          );
+          // Clear the server error after 3 seconds
+          setTimeout(() => setServerError(""), 5000);
+        } else {
+          setUniqueIDError("An error occurred. Please try again.");
+          setPasswordError("An error occurred. Please try again.");
+        }
       });
   }
 
@@ -155,6 +182,25 @@ function SignIn() {
 
   return (
     <>
+      {/*Render an overlay error if serverError is set*/}
+      {serverError && (
+        <AlertPopUp
+          isOpen={!!serverError}
+          onClose={() => setServerError("")}
+          title="Server Unreachable"
+          message="Server unreachable. Please contact your administrator."
+          autoDismissSeconds={5} // Will auto-dismiss only because there is exactly one OK button.
+          buttonConfigs={[
+            {
+              label: "OK",
+              onClick: () => setServerError(""),
+              colorScheme: "red",
+            },
+          ]}
+          isCentered={true}
+        />
+      )}
+
       {/* Logging in successfully Popup Overlay */}
       {showSuccessPopup && (
         <Flex
@@ -168,7 +214,13 @@ function SignIn() {
           alignItems="center"
           zIndex="9999"
         >
-          <Box bg="white" p="20px" borderRadius="8px" boxShadow="lg" textAlign="center">
+          <Box
+            bg="white"
+            p="20px"
+            borderRadius="8px"
+            boxShadow="lg"
+            textAlign="center"
+          >
             <Heading size="md" color={textColor}>
               Logging in successfully
               <Spinner size="md" color="brand.600" ml="10px" />
@@ -190,7 +242,13 @@ function SignIn() {
           alignItems="center"
           zIndex="9999"
         >
-          <Box bg="white" p="20px" borderRadius="8px" boxShadow="lg" textAlign="center">
+          <Box
+            bg="white"
+            p="20px"
+            borderRadius="8px"
+            boxShadow="lg"
+            textAlign="center"
+          >
             <Heading size="md" color={textColor}>
               Retrieving data
               <Spinner size="md" color="brand.600" ml="10px" />
@@ -212,7 +270,13 @@ function SignIn() {
           alignItems="center"
           zIndex="9999"
         >
-          <Box bg="white" p="20px" borderRadius="8px" boxShadow="lg" textAlign="center">
+          <Box
+            bg="white"
+            p="20px"
+            borderRadius="8px"
+            boxShadow="lg"
+            textAlign="center"
+          >
             <Heading size="md" color={textColor}>
               Unrecognized usertype, contact admin.
             </Heading>
@@ -269,8 +333,7 @@ function SignIn() {
                   color={textColor}
                   mb="8px"
                 >
-                  Username (System ID){" "}
-                  <Text color={brandStars}> * </Text>
+                  Username (System ID) <Text color={brandStars}> * </Text>
                 </FormLabel>
                 <Input
                   isRequired={true}
@@ -304,7 +367,11 @@ function SignIn() {
                     variant="auth"
                     onChange={(e) => setPassword(e.target.value)}
                   />
-                  <InputRightElement display="flex" alignItems="center" mt="4px">
+                  <InputRightElement
+                    display="flex"
+                    alignItems="center"
+                    mt="4px"
+                  >
                     <Icon
                       color={textColorSecondary}
                       _hover={{ cursor: "pointer" }}
@@ -315,7 +382,11 @@ function SignIn() {
                 </InputGroup>
                 <Flex justifyContent="space-between" align="center" mb="24px">
                   <FormControl display="flex" alignItems="center">
-                    <Checkbox id="remember-login" colorScheme="brandScheme" me="10px" />
+                    <Checkbox
+                      id="remember-login"
+                      colorScheme="brandScheme"
+                      me="10px"
+                    />
                     <FormLabel
                       htmlFor="remember-login"
                       mb="0"

@@ -39,49 +39,66 @@ const columnHelper = createColumnHelper();
 // Helper to format field values.
 function formatField(value) {
   if (Array.isArray(value)) {
-    if (value.length > 0 && Array.isArray(value[0])) {
-      return value.map((inner) => inner.join(", ")).join(" | ");
-    }
-    return value.join(", ");
+    // Process each element of the array:
+    return value
+      .map((item) => {
+        if (typeof item === "string" && item.includes(",")) {
+          // Split by comma, trim each part, and join with newline
+          return item
+            .split(",")
+            .map((s) => s.trim())
+            .join("\n");
+        }
+        return item;
+      })
+      .join("\n");
+  }
+  if (typeof value === "string" && value.includes(",")) {
+    // For strings that include a comma, split and join with newline
+    return value
+      .split(",")
+      .map((s) => s.trim())
+      .join("\n");
   }
   return value;
 }
 
+// Helper to get BMI color based on the value.
+function getBmiColor(bmi) {
+  const numericBmi = parseFloat(bmi);
+  if (isNaN(numericBmi)) return "inherit"; // default if value is not a number
+  if (numericBmi < 18.5) return "blue.400";
+  if (numericBmi < 25) return "green.400";
+  if (numericBmi < 30) return "yellow.400";
+  return "red.300";
+}
+
 // List of fields from your schema.
 const allFields = [
-  { key: "uniqueID", label: "Unique ID" },
-  { key: "consultations", label: "Consultations" },
-  { key: "registerDate", label: "Register Date" },
+  { key: "consultations", label: "Visit" },
   { key: "doctor_name", label: "Doctor Name" },
   { key: "hospital", label: "Hospital" },
-  { key: "userType", label: "User Type" },
-  { key: "fname", label: "First Name" },
-  { key: "lname", label: "Last Name" },
-  { key: "age", label: "Age" },
-  { key: "DOB", label: "DOB" },
-  { key: "gender", label: "Gender" },
   { key: "height", label: "Height" },
   { key: "weight", label: "Weight" },
   { key: "bmi", label: "BMI" },
-  { key: "ID", label: "ID" },
   { key: "phone_number", label: "Phone Number" },
   { key: "full_address", label: "Full Address" },
-  { key: "vitalsDates", label: "Vitals Dates" },
+  { key: "vitalsDates", label: "Vitals Date" },
   { key: "temp", label: "Temp" },
   { key: "HR", label: "HR" },
   { key: "BP", label: "BP" },
   { key: "O2", label: "O2" },
   { key: "RR", label: "RR" },
   { key: "moreVitals", label: "More Vitals" },
-  { key: "labDates", label: "Lab Dates" },
-  { key: "glucose", label: "Glucose" },
+  { key: "labDates", label: "Lab Date" },
+  { key: "glucose", label: "Random Glucose" },
   { key: "fastglucose", label: "Fast Glucose" },
   { key: "hb", label: "Hb" },
   { key: "creatinine", label: "Creatinine" },
   { key: "requestLab", label: "Request Lab" },
-  { key: "requestLabsDates", label: "Request Labs Dates" },
+  { key: "requestLabsDates", label: "Request Labs Date" },
   { key: "moreLab", label: "More Lab" },
-  { key: "doctorDates", label: "Doctor Dates" },
+  { key: "doctorDates", label: "Consultation Date" },
   { key: "doctor_comment", label: "Doctor Comment" },
   { key: "clinicalSymp", label: "Clinical Symptoms" },
   { key: "dangerSigns", label: "Danger Signs" },
@@ -92,7 +109,7 @@ const allFields = [
   { key: "dosage", label: "Dosage" },
   { key: "patient_manage", label: "Patient Manage" },
   { key: "control", label: "Control" },
-  { key: "resultComment", label: "Result Comment" },
+  { key: "resultComment", label: "System Comment" },
   { key: "appointment", label: "Appointment" },
   { key: "status", label: "Status" },
 ];
@@ -101,8 +118,48 @@ const allFields = [
 const generateColumns = (visibleColumns) => {
   return allFields
     .filter((field) => visibleColumns.includes(field.key))
-    .map((field) =>
-      columnHelper.accessor(field.key, {
+    .map((field) => {
+      // Special handling for the BMI column.
+      if (field.key === "bmi") {
+        return columnHelper.accessor(field.key, {
+          id: field.key,
+          header: ({ column }) => (
+            <Flex
+              cursor="pointer"
+              onClick={column.getToggleSortingHandler()}
+              align="center"
+              px="3px"
+            >
+              <Text fontSize="sm" color="gray.400">
+                {field.label}
+              </Text>
+              {column.getIsSorted() === "asc"
+                ? " ⬆"
+                : column.getIsSorted() === "desc"
+                ? " ⬇"
+                : null}
+            </Flex>
+          ),
+          cell: (info) => {
+            const value = info.getValue();
+            const bmiColor = getBmiColor(value);
+            return (
+              <Text
+                fontSize="sm"
+                whiteSpace="pre-line"
+                overflowWrap="break-word"
+                minWidth="max-content"
+                color={bmiColor} // sets the text color instead of background color
+                fontWeight="bold"
+              >
+                {formatField(value)}
+              </Text>
+            );
+          },
+        });
+      }
+      // Default cell renderer for all other columns.
+      return columnHelper.accessor(field.key, {
         id: field.key,
         header: ({ column }) => (
           <Flex
@@ -122,10 +179,18 @@ const generateColumns = (visibleColumns) => {
           </Flex>
         ),
         cell: (info) => (
-          <Text fontSize="sm">{formatField(info.getValue())}</Text>
+          <Text
+           fontSize="sm"
+           color="gray.900"
+            whiteSpace="pre-line"
+            overflowWrap="break-word"
+            minWidth="max-content"
+          >
+            {formatField(info.getValue())}
+          </Text>
         ),
-      })
-    );
+      });
+    });
 };
 
 export default function PatientAllInfo({ patient }) {
@@ -152,14 +217,17 @@ export default function PatientAllInfo({ patient }) {
       for (let i = 0; i < numRows; i++) {
         const row = {};
         allFields.forEach((field) => {
-          const fieldValue = p[field.key];
-          // If the field is stored as an array, take the ith element (or null if not available).
-          if (Array.isArray(fieldValue)) {
-            row[field.key] =
-              fieldValue[i] !== undefined ? fieldValue[i] : null;
+          if (field.key === "consultations") {
+            // Instead of displaying the value from patient, assign the consultation number (1, 2, 3, ...)
+            row[field.key] = i + 1;
           } else {
-            // For constant fields, keep the same value.
-            row[field.key] = fieldValue;
+            const fieldValue = p[field.key];
+            if (Array.isArray(fieldValue)) {
+              row[field.key] =
+                fieldValue[i] !== undefined ? fieldValue[i] : null;
+            } else {
+              row[field.key] = fieldValue;
+            }
           }
         });
         rows.push(row);
@@ -197,10 +265,9 @@ export default function PatientAllInfo({ patient }) {
   });
 
   const totalPages = Math.ceil(filteredData.length / pageSize);
-  const paginatedRows = table.getRowModel().rows.slice(
-    currentPage * pageSize,
-    (currentPage + 1) * pageSize
-  );
+  const paginatedRows = table
+    .getRowModel()
+    .rows.slice(currentPage * pageSize, (currentPage + 1) * pageSize);
 
   if (!patient) {
     return <Text>Loading...</Text>;
@@ -256,7 +323,7 @@ export default function PatientAllInfo({ patient }) {
       </Flex>
       {/* Scrollable table */}
       <Box overflowX="auto" px="25px" pb="16px">
-        <Table variant="simple" color="gray.500">
+        <Table variant="simple" color="gray.500" tableLayout="auto">
           <Thead>
             {table.getHeaderGroups().map((headerGroup) => (
               <Tr key={headerGroup.id}>
