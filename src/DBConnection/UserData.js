@@ -14,11 +14,11 @@ export function UserData() {
   const [pharmacist, setPharmacist] = useState(false);
   const [apiHost, setApiHost] = useState("");
 
-  // Function to render the SignIn component via a portal when token is expired
-  const showSignInComponent = () => {
-    const container = document.createElement("div");
-    document.body.appendChild(container);
-    ReactDOM.render(<SignIn />, container);
+  // Instead of rendering the SignIn component via a portal, we now clear the token and redirect
+  const redirectToSignIn = () => {
+    window.localStorage.removeItem("token");
+    window.localStorage.removeItem("loggedIn");
+    window.location.href = "/auth/sign-in";
   };
 
   // Load the host URL from a text file (placed in your public folder as apiHost.txt)
@@ -48,11 +48,11 @@ export function UserData() {
       .then((res) => res.json())
       .then((data) => {
         if (!data.data || data.data === "token expired") {
-          showSignInComponent();
+          redirectToSignIn();
           return;
         }
 
-        // Set the user type states based on retrieved userType
+        // Set user type states based on retrieved userType
         switch (data.data.userType) {
           case "Super Admin":
             setSuperadmin(true);
@@ -79,6 +79,9 @@ export function UserData() {
 
         setUserData(data.data);
         userTable = data.data;
+      })
+      .catch((err) => {
+        console.error("Error fetching user data", err);
       });
   }, [apiHost]);
 

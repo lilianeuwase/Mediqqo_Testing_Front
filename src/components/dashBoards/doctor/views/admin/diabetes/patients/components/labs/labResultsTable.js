@@ -55,7 +55,9 @@ function VitalsAlertModal({ isOpen, onClose }) {
           </Text>
         </ModalBody>
         <ModalFooter>
-          <Button colorScheme="blue" onClick={onClose}>OK</Button>
+          <Button colorScheme="blue" onClick={onClose}>
+            OK
+          </Button>
         </ModalFooter>
       </ModalContent>
     </Modal>
@@ -78,8 +80,12 @@ function DeleteConfirmationModal({ isOpen, onClose, onConfirm, recordDate }) {
           </Text>
         </ModalBody>
         <ModalFooter>
-          <Button colorScheme="red" mr={3} onClick={onConfirm}>Confirm</Button>
-          <Button variant="ghost" onClick={onClose}>Cancel</Button>
+          <Button colorScheme="red" mr={3} onClick={onConfirm}>
+            Confirm
+          </Button>
+          <Button variant="ghost" onClick={onClose}>
+            Cancel
+          </Button>
         </ModalFooter>
       </ModalContent>
     </Modal>
@@ -109,7 +115,10 @@ function EditLabResultsModal({ isOpen, onClose, initialData, onSave }) {
     } else {
       // Ensure there's an extra blank row at the end.
       const lastRow = newData.moreLab[newData.moreLab.length - 1];
-      if (((lastRow[0] || "").trim() !== "") || ((lastRow[1] || "").trim() !== "")) {
+      if (
+        (lastRow[0] || "").trim() !== "" ||
+        (lastRow[1] || "").trim() !== ""
+      ) {
         newData = { ...newData, moreLab: [...newData.moreLab, ["", ""]] };
       }
     }
@@ -120,7 +129,7 @@ function EditLabResultsModal({ isOpen, onClose, initialData, onSave }) {
   const ensureEmptyRow = (rows) => {
     if (rows.length === 0) return [["", ""]];
     const lastRow = rows[rows.length - 1];
-    if (((lastRow[0] || "").trim() === "") && ((lastRow[1] || "").trim() === "")) {
+    if ((lastRow[0] || "").trim() === "" && (lastRow[1] || "").trim() === "") {
       return rows;
     } else {
       return [...rows, ["", ""]];
@@ -133,8 +142,7 @@ function EditLabResultsModal({ isOpen, onClose, initialData, onSave }) {
     const { labDates, glucose, fastglucose, hb, creatinine } = formData;
 
     if (!labDates) newErrors.labDates = "Date is required";
-    if (!glucose)
-      newErrors.glucose = "Random Blood Glucose is required";
+    if (!glucose) newErrors.glucose = "Random Blood Glucose is required";
     else if (!numberRegex.test(glucose))
       newErrors.glucose =
         "Random Blood Glucose must be a number with up to 2 decimals";
@@ -156,14 +164,16 @@ function EditLabResultsModal({ isOpen, onClose, initialData, onSave }) {
       ? formData.moreLab
       : [];
     const validMoreLab = currentMoreLab.filter(
-      ([test, result]) => ((test || "").trim() !== "" || (result || "").trim() !== "")
+      ([test, result]) =>
+        (test || "").trim() !== "" || (result || "").trim() !== ""
     );
     for (const [test, result] of validMoreLab) {
       if (
-        (((test || "").trim() !== "") && ((result || "").trim() === "")) ||
-        (((test || "").trim() === "") && ((result || "").trim() !== ""))
+        ((test || "").trim() !== "" && (result || "").trim() === "") ||
+        ((test || "").trim() === "" && (result || "").trim() !== "")
       ) {
-        newErrors.moreLab = "Each lab test must have a corresponding lab result.";
+        newErrors.moreLab =
+          "Each lab test must have a corresponding lab result.";
         break;
       }
     }
@@ -194,9 +204,16 @@ function EditLabResultsModal({ isOpen, onClose, initialData, onSave }) {
             <Grid templateColumns="repeat(2, 1fr)" gap={4}>
               <GridItem>
                 <FormControl isInvalid={errors.glucose}>
-                  <FormLabel fontSize="sm" fontWeight="500" color={textColor} mb="0px">
+                  <FormLabel
+                    fontSize="sm"
+                    fontWeight="500"
+                    color={textColor}
+                    mb="0px"
+                  >
                     Random Blood Glucose{" "}
-                    <Text as="span" color="red">*</Text>
+                    <Text as="span" color="red">
+                      *
+                    </Text>
                   </FormLabel>
                   <Input
                     value={formData.glucose || ""}
@@ -206,15 +223,26 @@ function EditLabResultsModal({ isOpen, onClose, initialData, onSave }) {
                     size="lg"
                     variant="flushed"
                     backgroundColor="orange.100"
-                    onChange={(e) => setFormData({ ...formData, glucose: e.target.value })}
+                    onChange={(e) =>
+                      setFormData({ ...formData, glucose: e.target.value })
+                    }
                   />
-                  {errors.glucose && <FormErrorMessage>{errors.glucose}</FormErrorMessage>}
+                  {errors.glucose && (
+                    <FormErrorMessage>{errors.glucose}</FormErrorMessage>
+                  )}
                 </FormControl>
                 <Box mt={4}>
                   <FormControl isInvalid={errors.fastglucose}>
-                    <FormLabel fontSize="sm" fontWeight="500" color={textColor} mb="0px">
+                    <FormLabel
+                      fontSize="sm"
+                      fontWeight="500"
+                      color={textColor}
+                      mb="0px"
+                    >
                       Fasting Blood Glucose{" "}
-                      <Text as="span" color="red">*</Text>
+                      <Text as="span" color="red">
+                        *
+                      </Text>
                     </FormLabel>
                     <Input
                       value={formData.fastglucose || ""}
@@ -225,18 +253,30 @@ function EditLabResultsModal({ isOpen, onClose, initialData, onSave }) {
                       variant="flushed"
                       backgroundColor="orange.100"
                       onChange={(e) =>
-                        setFormData({ ...formData, fastglucose: e.target.value })
+                        setFormData({
+                          ...formData,
+                          fastglucose: e.target.value,
+                        })
                       }
                     />
-                    {errors.fastglucose && <FormErrorMessage>{errors.fastglucose}</FormErrorMessage>}
+                    {errors.fastglucose && (
+                      <FormErrorMessage>{errors.fastglucose}</FormErrorMessage>
+                    )}
                   </FormControl>
                 </Box>
               </GridItem>
               <GridItem>
                 <FormControl isInvalid={errors.hb}>
-                  <FormLabel fontSize="sm" fontWeight="500" color={textColor} mb="0px">
+                  <FormLabel
+                    fontSize="sm"
+                    fontWeight="500"
+                    color={textColor}
+                    mb="0px"
+                  >
                     HbA1c{" "}
-                    <Text as="span" color="red">*</Text>
+                    <Text as="span" color="red">
+                      *
+                    </Text>
                   </FormLabel>
                   <Input
                     value={formData.hb || ""}
@@ -246,15 +286,26 @@ function EditLabResultsModal({ isOpen, onClose, initialData, onSave }) {
                     size="lg"
                     variant="flushed"
                     backgroundColor="orange.100"
-                    onChange={(e) => setFormData({ ...formData, hb: e.target.value })}
+                    onChange={(e) =>
+                      setFormData({ ...formData, hb: e.target.value })
+                    }
                   />
-                  {errors.hb && <FormErrorMessage>{errors.hb}</FormErrorMessage>}
+                  {errors.hb && (
+                    <FormErrorMessage>{errors.hb}</FormErrorMessage>
+                  )}
                 </FormControl>
                 <Box mt={4}>
                   <FormControl isInvalid={errors.creatinine}>
-                    <FormLabel fontSize="sm" fontWeight="500" color={textColor} mb="0px">
+                    <FormLabel
+                      fontSize="sm"
+                      fontWeight="500"
+                      color={textColor}
+                      mb="0px"
+                    >
                       Creatinine{" "}
-                      <Text as="span" color="red">*</Text>
+                      <Text as="span" color="red">
+                        *
+                      </Text>
                     </FormLabel>
                     <Input
                       value={formData.creatinine || ""}
@@ -264,23 +315,38 @@ function EditLabResultsModal({ isOpen, onClose, initialData, onSave }) {
                       size="lg"
                       variant="flushed"
                       backgroundColor="orange.100"
-                      onChange={(e) => setFormData({ ...formData, creatinine: e.target.value })}
+                      onChange={(e) =>
+                        setFormData({ ...formData, creatinine: e.target.value })
+                      }
                     />
-                    {errors.creatinine && <FormErrorMessage>{errors.creatinine}</FormErrorMessage>}
+                    {errors.creatinine && (
+                      <FormErrorMessage>{errors.creatinine}</FormErrorMessage>
+                    )}
                   </FormControl>
                 </Box>
               </GridItem>
             </Grid>
             {/* Other Labs Section */}
             <Box mt="4">
-              <Text fontWeight="bold" mb="2">Other Labs</Text>
+              <Text fontWeight="bold" mb="2">
+                Other Labs
+              </Text>
               {/* Header */}
               <Grid templateColumns="repeat(2, 1fr)" gap={4} mb="2">
-                <GridItem><Text fontWeight="bold">Lab Test</Text></GridItem>
-                <GridItem><Text fontWeight="bold">Lab Result</Text></GridItem>
+                <GridItem>
+                  <Text fontWeight="bold">Lab Test</Text>
+                </GridItem>
+                <GridItem>
+                  <Text fontWeight="bold">Lab Result</Text>
+                </GridItem>
               </Grid>
               {(formData.moreLab || []).map((pair, index) => (
-                <Grid templateColumns="repeat(2, 1fr)" gap={4} key={index} mb="2">
+                <Grid
+                  templateColumns="repeat(2, 1fr)"
+                  gap={4}
+                  key={index}
+                  mb="2"
+                >
                   <GridItem>
                     <FormControl>
                       <Input
@@ -292,7 +358,9 @@ function EditLabResultsModal({ isOpen, onClose, initialData, onSave }) {
                         backgroundColor="orange.100"
                         placeholder="Lab Test"
                         onChange={(e) => {
-                          const newMoreLab = [...(formData.moreLab || [["", ""]])];
+                          const newMoreLab = [
+                            ...(formData.moreLab || [["", ""]]),
+                          ];
                           newMoreLab[index] = [
                             e.target.value,
                             newMoreLab[index] ? newMoreLab[index][1] : "",
@@ -314,7 +382,9 @@ function EditLabResultsModal({ isOpen, onClose, initialData, onSave }) {
                         backgroundColor="orange.100"
                         placeholder="Lab Result"
                         onChange={(e) => {
-                          const newMoreLab = [...(formData.moreLab || [["", ""]])];
+                          const newMoreLab = [
+                            ...(formData.moreLab || [["", ""]]),
+                          ];
                           newMoreLab[index] = [
                             newMoreLab[index] ? newMoreLab[index][0] : "",
                             e.target.value,
@@ -328,14 +398,25 @@ function EditLabResultsModal({ isOpen, onClose, initialData, onSave }) {
                 </Grid>
               ))}
               {errors.moreLab && (
-                <Text color="red.500" fontSize="sm" mt="1">{errors.moreLab}</Text>
+                <Text color="red.500" fontSize="sm" mt="1">
+                  {errors.moreLab}
+                </Text>
               )}
             </Box>
           </Flex>
         </ModalBody>
         <ModalFooter>
-          <Button variant="blue" size="lg" mr={3} onClick={handleSave}>Save</Button>
-          <Button variant="outline" colorScheme="red" size="lg" onClick={onClose}>Cancel</Button>
+          <Button variant="blue" size="lg" mr={3} onClick={handleSave}>
+            Save
+          </Button>
+          <Button
+            variant="outline"
+            colorScheme="red"
+            size="lg"
+            onClick={onClose}
+          >
+            Cancel
+          </Button>
         </ModalFooter>
       </ModalContent>
     </Modal>
@@ -374,102 +455,219 @@ export default function LabResultTable({ patient }) {
 
   const columnHelper = createColumnHelper();
 
-  const columns = React.useMemo(() => [
-    columnHelper.accessor("labDates", {
-      id: "labDates",
-      header: ({ column }) => (
-        <Flex cursor="pointer" onClick={column.getToggleSortingHandler()} align="center" px="3px">
-          <Text fontSize="sm" color="gray.400">Date of Results</Text>
-          {column.getIsSorted() === "asc" ? " ⬆" : column.getIsSorted() === "desc" ? " ⬇" : null}
-        </Flex>
-      ),
-      cell: (info) => <Text fontSize="sm" color={textColor}>{info.getValue()}</Text>,
-    }),
-    columnHelper.accessor("glucose", {
-      id: "glucose",
-      header: ({ column }) => (
-        <Flex cursor="pointer" onClick={column.getToggleSortingHandler()} align="center" px="3px">
-          <Text fontSize="sm" color="gray.400">Random Blood Glucose</Text>
-          {column.getIsSorted() === "asc" ? " ⬆" : column.getIsSorted() === "desc" ? " ⬇" : null}
-        </Flex>
-      ),
-      cell: (info) => <Text fontSize="sm" color={textColor}>{info.getValue()}</Text>,
-    }),
-    columnHelper.accessor("fastglucose", {
-      id: "fastglucose",
-      header: ({ column }) => (
-        <Flex cursor="pointer" onClick={column.getToggleSortingHandler()} align="center" px="3px">
-          <Text fontSize="sm" color="gray.400">Fasting Blood Glucose</Text>
-          {column.getIsSorted() === "asc" ? " ⬆" : column.getIsSorted() === "desc" ? " ⬇" : null}
-        </Flex>
-      ),
-      cell: (info) => <Text fontSize="sm" color={textColor}>{info.getValue()}</Text>,
-    }),
-    columnHelper.accessor("hb", {
-      id: "hb",
-      header: ({ column }) => (
-        <Flex cursor="pointer" onClick={column.getToggleSortingHandler()} align="center" px="3px">
-          <Text fontSize="sm" color="gray.400">HbA1c</Text>
-          {column.getIsSorted() === "asc" ? " ⬆" : column.getIsSorted() === "desc" ? " ⬇" : null}
-        </Flex>
-      ),
-      cell: (info) => <Text fontSize="sm" color={textColor}>{info.getValue()}</Text>,
-    }),
-    columnHelper.accessor("creatinine", {
-      id: "creatinine",
-      header: ({ column }) => (
-        <Flex cursor="pointer" onClick={column.getToggleSortingHandler()} align="center" px="3px">
-          <Text fontSize="sm" color="gray.400">Creatinine</Text>
-          {column.getIsSorted() === "asc" ? " ⬆" : column.getIsSorted() === "desc" ? " ⬇" : null}
-        </Flex>
-      ),
-      cell: (info) => <Text fontSize="sm" color={textColor}>{info.getValue()}</Text>,
-    }),
-    // Other Labs column with conditional rendering
-    columnHelper.accessor("moreLab", {
-      id: "moreLab",
-      header: ({ column }) => (
-        <Flex cursor="pointer" onClick={column.getToggleSortingHandler()} align="center" px="3px">
-          <Text fontSize="sm" color="gray.400">Other Labs</Text>
-          {column.getIsSorted() === "asc" ? " ⬆" : column.getIsSorted() === "desc" ? " ⬇" : null}
-        </Flex>
-      ),
-      cell: (info) => {
-        const val = info.getValue();
-        // If the stored value is flat (first element is a string), wrap it.
-        if (Array.isArray(val) && val.length > 0 && typeof val[0] === "string") {
-          return <Text fontSize="sm" color={textColor}>{val[0]}: {val[1]}</Text>;
-        }
-        // Otherwise, assume it's already a 2D array.
-        return (
-          <Box fontSize="sm" color={textColor}>
-            {Array.isArray(val) && val.map((pair, index) => (
-              <Text key={index}>{pair[0]}: {pair[1]}</Text>
-            ))}
-          </Box>
-        );
-      },
-    }),
-    // Action column
-    columnHelper.display({
-      id: "action",
-      header: () => <Text fontSize="sm" color="gray.400" px="3px">Action</Text>,
-      cell: (info) => (
-        <Flex gap="4" px="3px">
-          <Button variant="blue" size="xs" onClick={() => {
-            setSelectedEditData(info.row.original);
-            setSelectedRowIndex(info.row.index);
-            setIsEditModalOpen(true);
-          }}>Edit</Button>
-          <Button variant="outline" colorScheme="red" size="xs" onClick={() => {
-            setSelectedDeleteData(info.row.original);
-            setSelectedDeleteRowIndex(info.row.index);
-            setIsDeleteModalOpen(true);
-          }}>Delete</Button>
-        </Flex>
-      ),
-    }),
-  ], [textColor]);
+  const columns = React.useMemo(
+    () => [
+      columnHelper.accessor("labDates", {
+        id: "labDates",
+        header: ({ column }) => (
+          <Flex
+            cursor="pointer"
+            onClick={column.getToggleSortingHandler()}
+            align="center"
+            px="3px"
+          >
+            <Text fontSize="sm" color="gray.400">
+              Date of Results
+            </Text>
+            {column.getIsSorted() === "asc"
+              ? " ⬆"
+              : column.getIsSorted() === "desc"
+              ? " ⬇"
+              : null}
+          </Flex>
+        ),
+        cell: (info) => (
+          <Text fontSize="sm" color={textColor}>
+            {info.getValue()}
+          </Text>
+        ),
+      }),
+      columnHelper.accessor("glucose", {
+        id: "glucose",
+        header: ({ column }) => (
+          <Flex
+            cursor="pointer"
+            onClick={column.getToggleSortingHandler()}
+            align="center"
+            px="3px"
+          >
+            <Text fontSize="sm" color="gray.400">
+              Random Blood Glucose
+            </Text>
+            {column.getIsSorted() === "asc"
+              ? " ⬆"
+              : column.getIsSorted() === "desc"
+              ? " ⬇"
+              : null}
+          </Flex>
+        ),
+        cell: (info) => (
+          <Text fontSize="sm" color={textColor}>
+            {info.getValue()}
+          </Text>
+        ),
+      }),
+      columnHelper.accessor("fastglucose", {
+        id: "fastglucose",
+        header: ({ column }) => (
+          <Flex
+            cursor="pointer"
+            onClick={column.getToggleSortingHandler()}
+            align="center"
+            px="3px"
+          >
+            <Text fontSize="sm" color="gray.400">
+              Fasting Blood Glucose
+            </Text>
+            {column.getIsSorted() === "asc"
+              ? " ⬆"
+              : column.getIsSorted() === "desc"
+              ? " ⬇"
+              : null}
+          </Flex>
+        ),
+        cell: (info) => (
+          <Text fontSize="sm" color={textColor}>
+            {info.getValue()}
+          </Text>
+        ),
+      }),
+      columnHelper.accessor("hb", {
+        id: "hb",
+        header: ({ column }) => (
+          <Flex
+            cursor="pointer"
+            onClick={column.getToggleSortingHandler()}
+            align="center"
+            px="3px"
+          >
+            <Text fontSize="sm" color="gray.400">
+              HbA1c
+            </Text>
+            {column.getIsSorted() === "asc"
+              ? " ⬆"
+              : column.getIsSorted() === "desc"
+              ? " ⬇"
+              : null}
+          </Flex>
+        ),
+        cell: (info) => (
+          <Text fontSize="sm" color={textColor}>
+            {info.getValue()}
+          </Text>
+        ),
+      }),
+      columnHelper.accessor("creatinine", {
+        id: "creatinine",
+        header: ({ column }) => (
+          <Flex
+            cursor="pointer"
+            onClick={column.getToggleSortingHandler()}
+            align="center"
+            px="3px"
+          >
+            <Text fontSize="sm" color="gray.400">
+              Creatinine
+            </Text>
+            {column.getIsSorted() === "asc"
+              ? " ⬆"
+              : column.getIsSorted() === "desc"
+              ? " ⬇"
+              : null}
+          </Flex>
+        ),
+        cell: (info) => (
+          <Text fontSize="sm" color={textColor}>
+            {info.getValue()}
+          </Text>
+        ),
+      }),
+      // Other Labs column with conditional rendering
+      columnHelper.accessor("moreLab", {
+        id: "moreLab",
+        header: ({ column }) => (
+          <Flex
+            cursor="pointer"
+            onClick={column.getToggleSortingHandler()}
+            align="center"
+            px="3px"
+          >
+            <Text fontSize="sm" color="gray.400">
+              Other Labs
+            </Text>
+            {column.getIsSorted() === "asc"
+              ? " ⬆"
+              : column.getIsSorted() === "desc"
+              ? " ⬇"
+              : null}
+          </Flex>
+        ),
+        cell: (info) => {
+          const val = info.getValue();
+          // If the stored value is flat (first element is a string), wrap it.
+          if (
+            Array.isArray(val) &&
+            val.length > 0 &&
+            typeof val[0] === "string"
+          ) {
+            return (
+              <Text fontSize="sm" color={textColor}>
+                {val[0]}: {val[1]}
+              </Text>
+            );
+          }
+          // Otherwise, assume it's already a 2D array.
+          return (
+            <Box fontSize="sm" color={textColor}>
+              {Array.isArray(val) &&
+                val.map((pair, index) => (
+                  <Text key={index}>
+                    {pair[0]}: {pair[1]}
+                  </Text>
+                ))}
+            </Box>
+          );
+        },
+      }),
+      // Action column
+      columnHelper.display({
+        id: "action",
+        header: () => (
+          <Text fontSize="sm" color="gray.400" px="3px">
+            Action
+          </Text>
+        ),
+        cell: (info) => (
+          <Flex gap="4" px="3px">
+            <Button
+              variant="blue"
+              size="xs"
+              onClick={() => {
+                setSelectedEditData(info.row.original);
+                setSelectedRowIndex(info.row.index);
+                setIsEditModalOpen(true);
+              }}
+            >
+              Edit
+            </Button>
+            <Button
+              variant="outline"
+              colorScheme="red"
+              size="xs"
+              onClick={() => {
+                setSelectedDeleteData(info.row.original);
+                setSelectedDeleteRowIndex(info.row.index);
+                setIsDeleteModalOpen(true);
+              }}
+            >
+              Delete
+            </Button>
+          </Flex>
+        ),
+      }),
+    ],
+    [textColor]
+  );
 
   const allData = React.useMemo(() => {
     if (patient && Array.isArray(patient.labDates)) {
@@ -488,7 +686,10 @@ export default function LabResultTable({ patient }) {
   const filteredData = React.useMemo(() => {
     if (!searchQuery) return allData;
     return allData.filter((row) =>
-      Object.values(row).join(" ").toLowerCase().includes(searchQuery.toLowerCase())
+      Object.values(row)
+        .join(" ")
+        .toLowerCase()
+        .includes(searchQuery.toLowerCase())
     );
   }, [allData, searchQuery]);
 
@@ -502,7 +703,9 @@ export default function LabResultTable({ patient }) {
   });
 
   const totalPages = Math.ceil(filteredData.length / pageSize);
-  const paginatedRows = table.getRowModel().rows.slice(currentPage * pageSize, (currentPage + 1) * pageSize);
+  const paginatedRows = table
+    .getRowModel()
+    .rows.slice(currentPage * pageSize, (currentPage + 1) * pageSize);
 
   // API call to edit a lab record.
   const handleModalSave = async (updatedData) => {
@@ -562,16 +765,33 @@ export default function LabResultTable({ patient }) {
   return (
     <Card p="0px">
       <Flex px="25px" py="15px" justifyContent="space-between" align="center">
-        <Text fontSize="22px" fontWeight="700" color={textColor}>Laboratory Results</Text>
+        <Text fontSize="22px" fontWeight="700" color={textColor}>
+          Laboratory Results
+        </Text>
         <Flex align="center" gap="8px">
-          <SearchBar onSearch={(value) => { setSearchQuery(value); setCurrentPage(0); }} />
-          <Button colorScheme="blue" variant="blue" size="md" onClick={() => {
-            if (patient && patient.vitalsDates && patient.vitalsDates.length > (patient.labDates ? patient.labDates.length : 0)) {
-              onOpen();
-            } else {
-              setIsVitalsAlertOpen(true);
-            }
-          }}>
+          <SearchBar
+            onSearch={(value) => {
+              setSearchQuery(value);
+              setCurrentPage(0);
+            }}
+          />
+          <Button
+            colorScheme="blue"
+            variant="blue"
+            size="md"
+            onClick={() => {
+              if (
+                patient &&
+                patient.vitalsDates &&
+                patient.vitalsDates.length >
+                  (patient.labDates ? patient.labDates.length : 0)
+              ) {
+                onOpen();
+              } else {
+                setIsVitalsAlertOpen(true);
+              }
+            }}
+          >
             + Add Lab Results
           </Button>
         </Flex>
@@ -579,12 +799,21 @@ export default function LabResultTable({ patient }) {
       <Box overflowX={{ sm: "scroll", lg: "hidden" }} px="25px" pb="16px">
         <Table variant="simple" color="gray.500">
           <Thead>
-            {table.getHeaderGroups().map(headerGroup => (
+            {table.getHeaderGroups().map((headerGroup) => (
               <Tr key={headerGroup.id}>
-                {headerGroup.headers.map(header => (
-                  <Th key={header.id} borderColor={borderColor} cursor="pointer"
-                      onClick={header.column.getToggleSortingHandler()} px="3px" py="6px">
-                    {flexRender(header.column.columnDef.header, header.getContext())}
+                {headerGroup.headers.map((header) => (
+                  <Th
+                    key={header.id}
+                    borderColor={borderColor}
+                    cursor="pointer"
+                    onClick={header.column.getToggleSortingHandler()}
+                    px="3px"
+                    py="6px"
+                  >
+                    {flexRender(
+                      header.column.columnDef.header,
+                      header.getContext()
+                    )}
                   </Th>
                 ))}
               </Tr>
@@ -593,16 +822,30 @@ export default function LabResultTable({ patient }) {
           <Tbody>
             {paginatedRows.length === 0 ? (
               <Tr>
-                <Td colSpan={columns.length} textAlign="center" color={textColor} px="3px" py="6px">
+                <Td
+                  colSpan={columns.length}
+                  textAlign="center"
+                  color={textColor}
+                  px="3px"
+                  py="6px"
+                >
                   No data available.
                 </Td>
               </Tr>
             ) : (
-              paginatedRows.map(row => (
+              paginatedRows.map((row) => (
                 <Tr key={row.id} _hover={{ bg: hoverBg }}>
-                  {row.getVisibleCells().map(cell => (
-                    <Td key={cell.id} borderColor={borderColor} py="5px" px="3px">
-                      {flexRender(cell.column.columnDef.cell, cell.getContext())}
+                  {row.getVisibleCells().map((cell) => (
+                    <Td
+                      key={cell.id}
+                      borderColor={borderColor}
+                      py="5px"
+                      px="3px"
+                    >
+                      {flexRender(
+                        cell.column.columnDef.cell,
+                        cell.getContext()
+                      )}
                     </Td>
                   ))}
                 </Tr>
@@ -613,11 +856,18 @@ export default function LabResultTable({ patient }) {
       </Box>
       <Flex justify="space-between" align="center" px="25px" pb="16px">
         <Flex align="center" gap="2">
-          <Text fontSize="sm" color={textColor}>Rows Per Page:</Text>
-          <Select width="80px" height="35px" value={pageSize} onChange={(e) => {
-            setPageSize(Number(e.target.value));
-            setCurrentPage(0);
-          }}>
+          <Text fontSize="sm" color={textColor}>
+            Rows Per Page:
+          </Text>
+          <Select
+            width="80px"
+            height="35px"
+            value={pageSize}
+            onChange={(e) => {
+              setPageSize(Number(e.target.value));
+              setCurrentPage(0);
+            }}
+          >
             <option value={25}>25</option>
             <option value={50}>50</option>
             <option value={100}>100</option>
@@ -625,13 +875,33 @@ export default function LabResultTable({ patient }) {
         </Flex>
         <Text fontSize="sm" color={textColor}>
           {`${filteredData.length > 0 ? currentPage * pageSize + 1 : 0}-
-            ${Math.min((currentPage + 1) * pageSize, filteredData.length)} Lab Results of ${filteredData.length} Lab Results`}
+            ${Math.min(
+              (currentPage + 1) * pageSize,
+              filteredData.length
+            )} Lab Results of ${filteredData.length} Lab Results`}
         </Text>
         <Flex align="center" gap="2">
-          <Button onClick={() => setCurrentPage(currentPage - 1)} variant="light" size="sm" disabled={currentPage === 0}>
+          <Button
+            onClick={() => {
+              if (currentPage > 0) {
+                setCurrentPage(currentPage - 1);
+              }
+            }}
+            variant="light"
+            size="sm"
+            disabled={currentPage === 0}
+          >
             <ChevronLeftIcon />
           </Button>
-          <Button onClick={() => setCurrentPage(currentPage + 1)} variant="light" size="sm" disabled={currentPage >= totalPages - 1}>
+
+          <Button
+            onClick={() => {
+              if (currentPage < totalPages - 1) {
+                setCurrentPage(currentPage + 1);
+              }
+            }}
+            disabled={currentPage >= totalPages - 1}
+          >
             <ChevronRightIcon />
           </Button>
         </Flex>
@@ -661,7 +931,10 @@ export default function LabResultTable({ patient }) {
           recordDate={selectedDeleteData ? selectedDeleteData.labDates : ""}
         />
       )}
-      <VitalsAlertModal isOpen={isVitalsAlertOpen} onClose={() => setIsVitalsAlertOpen(false)} />
+      <VitalsAlertModal
+        isOpen={isVitalsAlertOpen}
+        onClose={() => setIsVitalsAlertOpen(false)}
+      />
     </Card>
   );
 }

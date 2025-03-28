@@ -1,4 +1,4 @@
-import React from "react";
+import React, { useEffect, useState } from "react";
 import {
   Box,
   Flex,
@@ -12,7 +12,18 @@ import {
   Button,
   Select,
   Input,
+  Modal,
+  ModalOverlay,
+  ModalContent,
+  ModalHeader,
+  ModalFooter,
+  ModalBody,
+  ModalCloseButton,
+  FormControl,
+  FormLabel,
+  Textarea,
   useColorModeValue,
+  useDisclosure,
 } from "@chakra-ui/react";
 import {
   createColumnHelper,
@@ -22,19 +33,56 @@ import {
   getSortedRowModel,
 } from "@tanstack/react-table";
 import { SearchBar } from "../../../../../../components/navbar/searchBar/SearchBar";
+import toTitleCase from "../../../../../../components/common/toTitleCase";
 
 const columnHelper = createColumnHelper();
 
+// Centered popup component for notifications.
+const CenteredPopup = ({ message, onClose }) => (
+  <Box
+    position="fixed"
+    top="0"
+    left="0"
+    width="100%"
+    height="100%"
+    bg="rgba(0,0,0,0.5)"
+    display="flex"
+    alignItems="center"
+    justifyContent="center"
+    zIndex="2000"
+  >
+    <Box
+      bg="white"
+      p="20px"
+      borderRadius="8px"
+      textAlign="center"
+      boxShadow="lg"
+      maxW="90%"
+    >
+      <Text mb="4">{message}</Text>
+      <Button colorScheme="red" onClick={onClose}>
+        Ok
+      </Button>
+    </Box>
+  </Box>
+);
+
 export default function DiabResultTable({ patient }) {
-  // Style variables matching AdditionalInfoTable.
+  // API Host
+  const [apiHost, setApiHost] = useState("");
+
+  // Style variables
   const textColor = useColorModeValue("secondaryGray.900", "white");
   const borderColor = useColorModeValue("gray.200", "whiteAlpha.100");
   const hoverBg = useColorModeValue("gray.100", "gray.700");
-  const bgColor = useColorModeValue("white", "gray.800"); // background for the table container
+  const bgColor = useColorModeValue("white", "gray.800");
 
-  // Local state for table data (allows row-level editing).
-  const [tableData, setTableData] = React.useState([]);
-  React.useEffect(() => {
+  // Notification state for centered popups.
+  const [notification, setNotification] = useState("");
+
+  // Local state for table data.
+  const [tableData, setTableData] = useState([]);
+  useEffect(() => {
     if (!patient || !patient.diagnosis) {
       setTableData([]);
       return;
@@ -48,7 +96,7 @@ export default function DiabResultTable({ patient }) {
         patient_manage: patient.patient_manage ? patient.patient_manage[i] : "",
         medication: patient.medication ? patient.medication[i] : "",
         comment: patient.doctor_comment ? patient.doctor_comment[i] : "",
-        dosage: patient.dosage ? patient.dosage[i] : [], // dosage is an array of 3 strings
+        dosage: patient.dosage ? patient.dosage[i] : [], // dosage is an array of strings
         control: patient.control ? patient.control[i] : "",
         resultComment: patient.resultComment ? patient.resultComment[i] : [],
       });
@@ -57,7 +105,7 @@ export default function DiabResultTable({ patient }) {
   }, [patient]);
 
   // Search state and filtering.
-  const [searchQuery, setSearchQuery] = React.useState("");
+  const [searchQuery, setSearchQuery] = useState("");
   const filteredData = React.useMemo(() => {
     if (!searchQuery) return tableData;
     return tableData.filter((row) =>
@@ -69,43 +117,47 @@ export default function DiabResultTable({ patient }) {
   }, [tableData, searchQuery]);
 
   // Sorting state.
-  const [sorting, setSorting] = React.useState([]);
+  const [sorting, setSorting] = useState([]);
 
-  // Row-level editing state.
-  const [editingRowId, setEditingRowId] = React.useState(null);
-  const [editingRowData, setEditingRowData] = React.useState({});
+  // Editing state.
+  const [editingRowId, setEditingRowId] = useState(null);
+  const [editingRowData, setEditingRowData] = useState({});
 
-  // When "Edit" is clicked for a row, populate editingRowData.
+  // Modal control.
+  const { isOpen, onOpen, onClose } = useDisclosure();
+
+  // When "Edit" is clicked, populate editing state and open the modal.
   const handleEdit = (row) => {
     setEditingRowId(row.consultations);
     setEditingRowData({
       patient_manage: row.patient_manage,
       medication: row.medication,
       comment: row.comment,
-      // For editing, join arrays into comma-separated strings.
-      dosage: Array.isArray(row.dosage) ? row.dosage.join(", ") : "",
-      resultComment: Array.isArray(row.resultComment)
-        ? row.resultComment.join(", ")
-        : "",
+      // Instead of joining, store dosage as an array.
+      dosage: Array.isArray(row.dosage) ? row.dosage : ["", "", ""],
+      // Remove resultComment from the editing state.
     });
+    onOpen();
   };
+
+  // Load the host URL from a text file.
+  useEffect(() => {
+    fetch("/apiHost.txt")
+      .then((res) => res.text())
+      .then((text) => setApiHost(text.trim()))
+      .catch((err) => console.error("Error loading API host:", err));
+  }, []);
 
   // Save changes via API and update tableData.
   const handleSave = async (consultationNumber) => {
-    const rowIndex = consultationNumber - 1; // assuming consultations are 1-indexed
-    // Prepare updated data; split dosage and resultComment by comma.
+    const rowIndex = consultationNumber - 1; // consultations are 1-indexed
     const updatedData = {
       patient_manage: editingRowData.patient_manage,
       medication: editingRowData.medication,
-      comment: editingRowData.comment,
-      dosage: editingRowData.dosage
-        .split(",")
-        .map((s) => s.trim())
-        .filter(Boolean),
-      resultComment: editingRowData.resultComment
-        .split(",")
-        .map((s) => s.trim())
-        .filter(Boolean),
+      dosage: Array.isArray(editingRowData.dosage)
+        ? editingRowData.dosage
+        : [editingRowData.dosage],
+      doctor_comment: editingRowData.comment, // using doctor_comment as key
     };
 
     const payload = {
@@ -115,34 +167,40 @@ export default function DiabResultTable({ patient }) {
     };
 
     try {
-      const response = await fetch("/editDiabResult", {
+      const response = await fetch(apiHost + "/editDiabResultFront", {
         method: "POST",
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify(payload),
       });
       const result = await response.json();
       if (result.status === "ok") {
-        // Update local tableData state.
+        // Update the local tableData accordingly.
         const newTableData = [...tableData];
         newTableData[rowIndex] = {
           ...newTableData[rowIndex],
-          ...updatedData,
+          patient_manage: updatedData.patient_manage,
+          medication: updatedData.medication,
+          dosage: updatedData.dosage,
+          comment: updatedData.doctor_comment,
         };
         setTableData(newTableData);
         setEditingRowId(null);
         setEditingRowData({});
+        onClose();
+        setNotification("Record updated successfully!");
       } else {
-        alert("Error updating record: " + result.error);
+        setNotification("Error updating record: " + result.error);
       }
     } catch (error) {
       console.error("Error updating record:", error);
+      setNotification("Error updating record: " + error.message);
     }
   };
 
   // Define columns.
   const columns = React.useMemo(
     () => [
-      // Consultation # (not editable)
+      // Consultation #
       columnHelper.accessor("consultations", {
         header: ({ column }) => (
           <Flex
@@ -167,7 +225,7 @@ export default function DiabResultTable({ patient }) {
           </Text>
         ),
       }),
-      // Diagnosis (not editable)
+      // Diagnosis
       columnHelper.accessor("diagnosis", {
         header: ({ column }) => (
           <Flex
@@ -192,7 +250,7 @@ export default function DiabResultTable({ patient }) {
           </Text>
         ),
       }),
-      // Management (editable)
+      // Management (non-editable in table)
       columnHelper.accessor("patient_manage", {
         header: ({ column }) => (
           <Flex
@@ -211,25 +269,13 @@ export default function DiabResultTable({ patient }) {
               : null}
           </Flex>
         ),
-        cell: (info) => {
-          const row = info.row.original;
-          if (editingRowId === row.consultations) {
-            return (
-              <Input
-                value={editingRowData.patient_manage || ""}
-                onChange={(e) =>
-                  setEditingRowData({
-                    ...editingRowData,
-                    patient_manage: e.target.value,
-                  })
-                }
-              />
-            );
-          }
-          return <Text fontSize="sm" color={textColor}>{info.getValue()}</Text>;
-        },
+        cell: (info) => (
+          <Text fontSize="sm" color={textColor}>
+            {info.getValue()}
+          </Text>
+        ),
       }),
-      // Medication (editable)
+      // Medication (non-editable in table)
       columnHelper.accessor("medication", {
         header: ({ column }) => (
           <Flex
@@ -248,25 +294,13 @@ export default function DiabResultTable({ patient }) {
               : null}
           </Flex>
         ),
-        cell: (info) => {
-          const row = info.row.original;
-          if (editingRowId === row.consultations) {
-            return (
-              <Input
-                value={editingRowData.medication || ""}
-                onChange={(e) =>
-                  setEditingRowData({
-                    ...editingRowData,
-                    medication: e.target.value,
-                  })
-                }
-              />
-            );
-          }
-          return <Text fontSize="sm" color={textColor}>{info.getValue() || "N/A"}</Text>;
-        },
+        cell: (info) => (
+          <Text fontSize="sm" color={textColor}>
+            {info.getValue() || "N/A"}
+          </Text>
+        ),
       }),
-      // Dosage (editable)
+      // Dosage – using toTitleCase for display.
       columnHelper.accessor("dosage", {
         header: ({ column }) => (
           <Flex
@@ -286,31 +320,21 @@ export default function DiabResultTable({ patient }) {
           </Flex>
         ),
         cell: (info) => {
-          const row = info.row.original;
-          if (editingRowId === row.consultations) {
-            return (
-              <Input
-                value={editingRowData.dosage || ""}
-                onChange={(e) =>
-                  setEditingRowData({
-                    ...editingRowData,
-                    dosage: e.target.value,
-                  })
-                }
-              />
-            );
-          }
           const dosage = info.getValue();
           return (
             <Box>
-              {Array.isArray(dosage)
-                ? dosage.map((d, i) => <Text key={i}>{d}</Text>)
-                : <Text>{dosage}</Text>}
+              {Array.isArray(dosage) ? (
+                dosage.map((d, i) => (
+                  <Text key={i}>{toTitleCase(d)}</Text>
+                ))
+              ) : (
+                <Text>{toTitleCase(dosage)}</Text>
+              )}
             </Box>
           );
         },
       }),
-      // Control (not editable)
+      // Control
       columnHelper.accessor("control", {
         header: ({ column }) => (
           <Flex
@@ -329,9 +353,13 @@ export default function DiabResultTable({ patient }) {
               : null}
           </Flex>
         ),
-        cell: (info) => <Text fontSize="sm" color={textColor}>{info.getValue()}</Text>,
+        cell: (info) => (
+          <Text fontSize="sm" color={textColor}>
+            {info.getValue()}
+          </Text>
+        ),
       }),
-      // Result Comment (editable)
+      // Result Comment
       columnHelper.accessor("resultComment", {
         header: ({ column }) => (
           <Flex
@@ -341,7 +369,7 @@ export default function DiabResultTable({ patient }) {
             px="3px"
           >
             <Text fontSize="sm" color="gray.400">
-              Result Comment
+              Generated Comment
             </Text>
             {column.getIsSorted() === "asc"
               ? " ⬆"
@@ -351,31 +379,19 @@ export default function DiabResultTable({ patient }) {
           </Flex>
         ),
         cell: (info) => {
-          const row = info.row.original;
-          if (editingRowId === row.consultations) {
-            return (
-              <Input
-                value={editingRowData.resultComment || ""}
-                onChange={(e) =>
-                  setEditingRowData({
-                    ...editingRowData,
-                    resultComment: e.target.value,
-                  })
-                }
-              />
-            );
-          }
           const rc = info.getValue();
           return (
             <Box>
-              {Array.isArray(rc)
-                ? rc.map((r, i) => <Text key={i}>{r}</Text>)
-                : <Text>{rc}</Text>}
+              {Array.isArray(rc) ? (
+                rc.map((r, i) => <Text key={i}>{r}</Text>)
+              ) : (
+                <Text>{rc}</Text>
+              )}
             </Box>
           );
         },
       }),
-      // Doctor Comment (editable) moved to be the last column before Action.
+      // Doctor Comment
       columnHelper.accessor("comment", {
         header: ({ column }) => (
           <Flex
@@ -394,66 +410,27 @@ export default function DiabResultTable({ patient }) {
               : null}
           </Flex>
         ),
-        cell: (info) => {
-          const row = info.row.original;
-          if (editingRowId === row.consultations) {
-            return (
-              <Input
-                value={editingRowData.comment || ""}
-                onChange={(e) =>
-                  setEditingRowData({
-                    ...editingRowData,
-                    comment: e.target.value,
-                  })
-                }
-              />
-            );
-          }
-          return <Text fontSize="sm" color={textColor}>{info.getValue()}</Text>;
-        },
+        cell: (info) => (
+          <Text fontSize="sm" color={textColor}>
+            {info.getValue()}
+          </Text>
+        ),
       }),
-      // Action column remains last.
+      // Action column: triggers the modal for editing.
       columnHelper.display({
         id: "action",
         header: "Action",
         cell: (info) => {
           const row = info.row.original;
-          if (editingRowId === row.consultations) {
-            return (
-              <Flex gap="2">
-                <Button
-                  colorScheme="green"
-                  size="xs"
-                  onClick={() => handleSave(row.consultations)}
-                >
-                  Save
-                </Button>
-                <Button
-                  colorScheme="red"
-                  size="xs"
-                  onClick={() => {
-                    setEditingRowId(null);
-                    setEditingRowData({});
-                  }}
-                >
-                  Cancel
-                </Button>
-              </Flex>
-            );
-          }
           return (
-            <Button
-              colorScheme="red"
-              size="xs"
-              onClick={() => handleEdit(row)}
-            >
+            <Button colorScheme="red" size="xs" onClick={() => handleEdit(row)}>
               Edit
             </Button>
           );
         },
       }),
     ],
-    [textColor, editingRowId, editingRowData, tableData]
+    [textColor, tableData]
   );
 
   const table = useReactTable({
@@ -466,8 +443,8 @@ export default function DiabResultTable({ patient }) {
   });
 
   // Pagination controls.
-  const [pageSize, setPageSize] = React.useState(10);
-  const [currentPage, setCurrentPage] = React.useState(0);
+  const [pageSize, setPageSize] = useState(10);
+  const [currentPage, setCurrentPage] = useState(0);
   const totalPages = Math.ceil(filteredData.length / pageSize);
   const paginatedRows = table
     .getRowModel()
@@ -475,6 +452,9 @@ export default function DiabResultTable({ patient }) {
 
   return (
     <Box p="4" bg={bgColor} borderRadius="md" boxShadow="sm">
+      {notification && (
+        <CenteredPopup message={notification} onClose={() => setNotification("")} />
+      )}
       <Flex justifyContent="space-between" alignItems="center" mb="4" px="25px">
         <Text fontSize="xl" fontWeight="bold" color={textColor}>
           Patient Consultation Results
@@ -501,7 +481,10 @@ export default function DiabResultTable({ patient }) {
                     px="3px"
                     py="6px"
                   >
-                    {flexRender(header.column.columnDef.header, header.getContext())}
+                    {flexRender(
+                      header.column.columnDef.header,
+                      header.getContext()
+                    )}
                   </Th>
                 ))}
               </Tr>
@@ -568,6 +551,135 @@ export default function DiabResultTable({ patient }) {
           </Button>
         </Flex>
       </Flex>
+      {/* Modal for editing */}
+      <Modal
+        isOpen={isOpen}
+        onClose={() => {
+          setEditingRowId(null);
+          setEditingRowData({});
+          onClose();
+        }}
+        isCentered
+      >
+        <ModalOverlay />
+        <ModalContent>
+          <ModalHeader>Edit Consultation {editingRowId} Details</ModalHeader>
+          <ModalCloseButton />
+          <ModalBody>
+            <FormControl mb="4">
+              <FormLabel>Management</FormLabel>
+              <Textarea
+                value={editingRowData.patient_manage || ""}
+                onChange={(e) =>
+                  setEditingRowData({
+                    ...editingRowData,
+                    patient_manage: e.target.value,
+                  })
+                }
+                placeholder="Management"
+                resize="vertical"
+              />
+            </FormControl>
+            <FormControl mb="4">
+              <FormLabel>Medication</FormLabel>
+              <Textarea
+                value={editingRowData.medication || ""}
+                onChange={(e) =>
+                  setEditingRowData({
+                    ...editingRowData,
+                    medication: e.target.value,
+                  })
+                }
+                placeholder="Medication"
+                resize="vertical"
+              />
+            </FormControl>
+            <FormControl mb="4">
+              <FormLabel>Medication Name</FormLabel>
+              <Input
+                value={
+                  editingRowData.dosage && editingRowData.dosage[0]
+                    ? editingRowData.dosage[0]
+                    : ""
+                }
+                onChange={(e) => {
+                  const newDosage = editingRowData.dosage
+                    ? [...editingRowData.dosage]
+                    : ["", "", ""];
+                  newDosage[0] = e.target.value;
+                  setEditingRowData({ ...editingRowData, dosage: newDosage });
+                }}
+                placeholder="Medication Name"
+              />
+            </FormControl>
+            <FormControl mb="4">
+              <FormLabel>Dose</FormLabel>
+              <Input
+                value={
+                  editingRowData.dosage && editingRowData.dosage[1]
+                    ? editingRowData.dosage[1]
+                    : ""
+                }
+                onChange={(e) => {
+                  const newDosage = editingRowData.dosage
+                    ? [...editingRowData.dosage]
+                    : ["", "", ""];
+                  newDosage[1] = e.target.value;
+                  setEditingRowData({ ...editingRowData, dosage: newDosage });
+                }}
+                placeholder="Dose"
+              />
+            </FormControl>
+            <FormControl mb="4">
+              <FormLabel>Administration</FormLabel>
+              <Input
+                value={
+                  editingRowData.dosage && editingRowData.dosage[2]
+                    ? editingRowData.dosage[2]
+                    : ""
+                }
+                onChange={(e) => {
+                  const newDosage = editingRowData.dosage
+                    ? [...editingRowData.dosage]
+                    : ["", "", ""];
+                  newDosage[2] = e.target.value;
+                  setEditingRowData({ ...editingRowData, dosage: newDosage });
+                }}
+                placeholder="Administration"
+              />
+            </FormControl>
+            <FormControl mb="4">
+              <FormLabel>Doctor Comment</FormLabel>
+              <Textarea
+                value={editingRowData.comment || ""}
+                onChange={(e) =>
+                  setEditingRowData({
+                    ...editingRowData,
+                    comment: e.target.value,
+                  })
+                }
+                placeholder="Doctor Comment"
+                resize="vertical"
+              />
+            </FormControl>
+          </ModalBody>
+          <ModalFooter>
+            <Button colorScheme="red" mr={3} onClick={() => handleSave(editingRowId)}>
+              Save
+            </Button>
+            <Button
+              variant="ghost"
+              onClick={() => {
+                setEditingRowId(null);
+                setEditingRowData({});
+                onClose();
+              }}
+            >
+              Cancel
+            </Button>
+          </ModalFooter>
+        </ModalContent>
+      </Modal>
     </Box>
   );
 }

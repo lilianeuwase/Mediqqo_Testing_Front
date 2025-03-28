@@ -1,4 +1,4 @@
-import React, { useState } from "react";
+import React, { useState, useEffect } from "react";
 import {
   Box,
   Flex,
@@ -28,15 +28,29 @@ import ManagePatient from "./components/managePatient";
 import LabPanel from "./components/labPanel";
 import DiabResultTable from "./components/result/diabResultTable";
 import DiabResultCard from "./components/result/diabResultCard";
-
-// Import the PatientAppointment component
 import DiabPatientAppointment from "./components/actions/diabAppointment";
 import DiabResultCalculate from "./components/result/diabResultCalculate";
+import PatientAllInfo from "./components/patientAllInfo";
 
 export default function DaibPatientInfo() {
   const [isAppointmentOpen, setIsAppointmentOpen] = useState(false);
+  const [tabIndex, setTabIndex] = useState(0);
   const bgHeader = useColorModeValue("white", "gray.700");
   const patient = DiabPatientData();
+
+  // Retrieve the active tab index from localStorage on component mount
+  useEffect(() => {
+    const savedTab = localStorage.getItem("activeTab");
+    if (savedTab !== null) {
+      setTabIndex(Number(savedTab));
+    }
+  }, []);
+
+  // Handler for tab changes: update state and localStorage
+  const handleTabsChange = (index) => {
+    setTabIndex(index);
+    localStorage.setItem("activeTab", index);
+  };
 
   if (!patient) {
     return <Text>Loading...</Text>;
@@ -77,8 +91,8 @@ export default function DaibPatientInfo() {
         </Menu>
       </Flex>
 
-      {/* Tabs */}
-      <Tabs>
+      {/* Tabs with controlled state */}
+      <Tabs index={tabIndex} onChange={handleTabsChange}>
         <TabList>
           <Tab
             _selected={{
@@ -169,7 +183,7 @@ export default function DaibPatientInfo() {
 
           {/* Tab 5: Results */}
           <TabPanel p="20px" borderRadius="md" boxShadow="sm">
-            <DiabResultCard patient={patient} />
+            {/* <DiabResultCard patient={patient} /> */}
             <Box mt="20px">
               <DiabResultTable patient={patient} />
             </Box>
@@ -178,7 +192,7 @@ export default function DaibPatientInfo() {
 
           {/* Tab 6: Full History */}
           <TabPanel p="20px" borderRadius="md" boxShadow="sm">
-            <Text>Full Table coming soon</Text>
+            <PatientAllInfo patient={patient} />
           </TabPanel>
         </TabPanels>
       </Tabs>

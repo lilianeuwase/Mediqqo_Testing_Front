@@ -47,10 +47,10 @@ export default function UserReports() {
     patients.filter(condition).length;
 
   // User Info
-  const fname = userData?.fname || "Unknown";
-  const lname = userData?.lname || "";
+  const fname = userData?.fname || "Loading...";
+  const lname = userData?.lname || "Loading...";
   const name = `Dr. ${fname} ${lname}`;
-  const title = `${userData?.title || "N/A"} | ${userHospital}`;
+  const title = `${userData?.title || ""} | ${userHospital}`;
   const phone = userData?.phone || "No phone available";
   const email = userData?.email || "No email available";
 

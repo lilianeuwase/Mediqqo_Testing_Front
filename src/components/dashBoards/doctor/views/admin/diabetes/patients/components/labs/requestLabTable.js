@@ -23,6 +23,8 @@ import {
   FormLabel,
   Input,
   FormErrorMessage,
+  Checkbox,
+  CheckboxGroup,
 } from "@chakra-ui/react";
 import Card from "../../../../../../components/card/Card";
 import { SearchBar } from "../../../../../../components/navbar/searchBar/SearchBar";
@@ -34,8 +36,6 @@ import {
   getSortedRowModel,
 } from "@tanstack/react-table";
 import { ChevronLeftIcon, ChevronRightIcon } from "@chakra-ui/icons";
-
-const columnHelper = createColumnHelper();
 
 // ------------------------------------------------------------------
 // DeleteConfirmationModal: A modal to confirm deletion of a lab request.
@@ -66,67 +66,148 @@ function DeleteConfirmationModal({ isOpen, onClose, onConfirm, recordDate }) {
 }
 
 // ------------------------------------------------------------------
-// EditRequestLabModal: A modal for editing a lab request.
-function EditRequestLabModal({ isOpen, onClose, initialData, onSave }) {
-  const textColor = useColorModeValue("secondaryGray.900", "white");
-  const [formData, setFormData] = useState(initialData || {});
-  const [errors, setErrors] = useState({});
+// EditLabExamModal: A modal for editing a lab request using a centered pop-up layout similar to LabExamModal.
+function EditLabExamModal({ isOpen, onClose, initialData, labExamOptions, onSave }) {
+  const modalTextColor = useColorModeValue("secondaryGray.900", "white");
+  const [searchTerm, setSearchTerm] = useState("");
 
+  // Default options if none provided.
+  const defaultLabExamOptions = [
+    "Fasting Blood Glucose",
+    "HbA1c",
+    "Oral Glucose Tolerance Test",
+    "Random Blood Glucose",
+    "Serum Insulin Levels",
+    "Fructosamine",
+    "Serum Creatinine",
+    "Blood Urea Nitrogen (BUN)",
+    "Electrolyte Panel",
+    "Lipid Profile",
+    "Urinalysis",
+    "Urine Albumin-Creatinine Ratio",
+    "Complete Blood Count (CBC)",
+    "Eosinophil Count",
+    "Sputum Eosinophils",
+    "IgE Levels",
+    "Allergy Panel",
+  ];
+  const options = labExamOptions && labExamOptions.length > 0 ? labExamOptions : defaultLabExamOptions;
+
+  // These states will store the selected checklist items and custom lab tests.
+  const [selectedExams, setSelectedExams] = useState([]);
+  // customLabs is an array of strings; we always add an empty string at the end for a new entry.
+  const [customLabs, setCustomLabs] = useState([""]);
+
+  // Initialize state only when the modal is opened.
   useEffect(() => {
-    setFormData(initialData || {});
-  }, [initialData]);
+    if (isOpen && initialData && initialData.requestLab) {
+      const labs = Array.isArray(initialData.requestLab)
+        ? initialData.requestLab
+        : initialData.requestLab.split(",").map((lab) => lab.trim());
+      const initialSelectedExams = labs.filter((lab) => options.includes(lab));
+      const initialCustomLabs = labs.filter((lab) => !options.includes(lab));
+      setSelectedExams(initialSelectedExams);
+      // Always ensure there’s a free empty cell at the end.
+      setCustomLabs([...initialCustomLabs, ""]);
+    }
+  }, [isOpen, initialData]);
 
+  // Filter the available lab options by the search term.
+  const filteredLabOptions = options.filter((exam) =>
+    exam.toLowerCase().includes(searchTerm.toLowerCase())
+  );
+
+  // Update the custom lab at a given index.
+  const handleCustomLabChange = (index, value) => {
+    setCustomLabs((prev) => {
+      const newLabs = [...prev];
+      newLabs[index] = value;
+      // If typing in the free cell and it becomes non-empty, add a new empty cell.
+      if (index === newLabs.length - 1 && value.trim() !== "") {
+        newLabs.push("");
+      }
+      // Remove extra trailing empty cells.
+      while (newLabs.length > 1 && newLabs[newLabs.length - 2] === "" && newLabs[newLabs.length - 1] === "") {
+        newLabs.pop();
+      }
+      return newLabs;
+    });
+  };
+
+  // Remove a custom lab cell at the given index.
+  const handleDeleteCustomLab = (index) => {
+    setCustomLabs((prev) => {
+      const newLabs = prev.filter((_, i) => i !== index);
+      // Always leave at least one empty cell.
+      if (newLabs.length === 0 || newLabs[newLabs.length - 1] !== "") {
+        newLabs.push("");
+      }
+      return newLabs;
+    });
+  };
+
+  // On save, combine checklist items with non-empty custom labs.
   const handleSave = () => {
-    let newErrors = {};
-    const { requestLabsDates, requestLab } = formData;
-
-    if (!requestLabsDates) newErrors.requestLabsDates = "Date is required";
-    if (!requestLab) newErrors.requestLab = "Request is required";
-
-    setErrors(newErrors);
-    if (Object.keys(newErrors).length > 0) return;
-
-    onSave(formData);
+    const nonEmptyCustomLabs = customLabs.filter((lab) => lab.trim() !== "");
+    const combinedExams = Array.from(new Set([...selectedExams, ...nonEmptyCustomLabs]));
+    onSave({ ...initialData, requestLab: combinedExams });
+    onClose();
   };
 
   return (
-    <Modal isOpen={isOpen} onClose={onClose} size="md">
+    <Modal isOpen={isOpen} onClose={onClose} isCentered size="md">
       <ModalOverlay />
       <ModalContent>
-        <ModalHeader>Edit Lab Request</ModalHeader>
+        <ModalHeader color={modalTextColor}>Edit Lab Request</ModalHeader>
         <ModalCloseButton />
         <ModalBody>
-          <Flex direction="column" gap="4">
-            <Box>
-              <Text fontWeight="bold">Date of Request:</Text>
-              <Text>{formData.requestLabsDates}</Text>
-            </Box>
-            <FormControl isInvalid={errors.requestLab}>
-              <FormLabel fontSize="sm" fontWeight="500" color={textColor} mb="0px">
-                Request Lab <Text as="span" color="red">*</Text>
-              </FormLabel>
+          <Input
+            placeholder="Search lab exam..."
+            mb="4"
+            value={searchTerm}
+            onChange={(e) => setSearchTerm(e.target.value)}
+          />
+          <CheckboxGroup
+            colorScheme="purple"
+            value={selectedExams}
+            onChange={(values) => setSelectedExams(values)}
+          >
+            <Flex direction="column" gap="8px" maxH="200px" overflowY="auto">
+              {filteredLabOptions.map((exam, index) => (
+                <Checkbox key={index} value={exam}>
+                  {exam}
+                </Checkbox>
+              ))}
+            </Flex>
+          </CheckboxGroup>
+          <Text mt="4" mb="2">
+            Other Lab Tests:
+          </Text>
+          {customLabs.map((lab, index) => (
+            <Flex key={index} align="center" mb="2">
               <Input
-                value={formData.requestLab || ""}
-                isRequired
-                fontSize="sm"
-                type="text"
-                size="lg"
-                variant="flushed"
-                onChange={(e) =>
-                  setFormData({ ...formData, requestLab: e.target.value })
-                }
+                placeholder="Other Lab Test"
+                value={lab}
+                onChange={(e) => handleCustomLabChange(index, e.target.value)}
               />
-              {errors.requestLab && (
-                <FormErrorMessage>{errors.requestLab}</FormErrorMessage>
+              {lab.trim() !== "" && index !== customLabs.length - 1 && (
+                <Button
+                  ml="2"
+                  size="sm"
+                  colorScheme="red"
+                  onClick={() => handleDeleteCustomLab(index)}
+                >
+                  Delete
+                </Button>
               )}
-            </FormControl>
-          </Flex>
+            </Flex>
+          ))}
         </ModalBody>
         <ModalFooter>
-          <Button variant="blue" size="lg" mr={3} onClick={handleSave}>
+          <Button colorScheme="purple" mr={3} onClick={handleSave}>
             Save
           </Button>
-          <Button variant="outline" colorScheme="red" size="lg" onClick={onClose}>
+          <Button variant="outline" colorScheme="red" onClick={onClose}>
             Cancel
           </Button>
         </ModalFooter>
@@ -150,17 +231,17 @@ export default function RequestLabTable({ patient }) {
   const [pageSize, setPageSize] = useState(10);
   const [currentPage, setCurrentPage] = useState(0);
 
-  // States for the Edit Modal
+  // States for the Edit Modal (using the new EditLabExamModal).
   const [isEditModalOpen, setIsEditModalOpen] = useState(false);
   const [selectedEditData, setSelectedEditData] = useState(null);
   const [selectedRowIndex, setSelectedRowIndex] = useState(null);
 
-  // States for the Delete Confirmation Modal
+  // States for the Delete Confirmation Modal.
   const [isDeleteModalOpen, setIsDeleteModalOpen] = useState(false);
   const [selectedDeleteData, setSelectedDeleteData] = useState(null);
   const [selectedDeleteRowIndex, setSelectedDeleteRowIndex] = useState(null);
 
-  // Load API host state
+  // Load API host state.
   const [apiHost, setApiHost] = useState("");
   useEffect(() => {
     fetch("/apiHost.txt")
@@ -323,14 +404,11 @@ export default function RequestLabTable({ patient }) {
     };
 
     try {
-      const response = await fetch(
-        `${apiHost}/editDiabRequestedLab`,
-        {
-          method: "POST",
-          headers: { "Content-Type": "application/json" },
-          body: JSON.stringify(payload),
-        }
-      );
+      const response = await fetch(`${apiHost}/editDiabRequestedLab`, {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify(payload),
+      });
       const result = await response.json();
       if (result.status === "ok") {
         window.location.reload();
@@ -350,14 +428,11 @@ export default function RequestLabTable({ patient }) {
     };
 
     try {
-      const response = await fetch(
-        `${apiHost}/deleteDiabRequestedLab`,
-        {
-          method: "POST",
-          headers: { "Content-Type": "application/json" },
-          body: JSON.stringify(payload),
-        }
-      );
+      const response = await fetch(`${apiHost}/deleteDiabRequestedLab`, {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify(payload),
+      });
       const result = await response.json();
       if (result.status === "ok") {
         window.location.reload();
@@ -398,7 +473,10 @@ export default function RequestLabTable({ patient }) {
                     px="3px"
                     py="6px"
                   >
-                    {flexRender(header.column.columnDef.header, header.getContext())}
+                    {flexRender(
+                      header.column.columnDef.header,
+                      header.getContext()
+                    )}
                   </Th>
                 ))}
               </Tr>
@@ -421,8 +499,16 @@ export default function RequestLabTable({ patient }) {
               paginatedRows.map((row) => (
                 <Tr key={row.id} _hover={{ bg: hoverBg }}>
                   {row.getVisibleCells().map((cell) => (
-                    <Td key={cell.id} borderColor={borderColor} py="5px" px="3px">
-                      {flexRender(cell.column.columnDef.cell, cell.getContext())}
+                    <Td
+                      key={cell.id}
+                      borderColor={borderColor}
+                      py="5px"
+                      px="3px"
+                    >
+                      {flexRender(
+                        cell.column.columnDef.cell,
+                        cell.getContext()
+                      )}
                     </Td>
                   ))}
                 </Tr>
@@ -453,13 +539,18 @@ export default function RequestLabTable({ patient }) {
         <Text fontSize="sm" color={textColor}>
           {`${
             filteredData.length > 0 ? currentPage * pageSize + 1 : 0
-          }-${Math.min((currentPage + 1) * pageSize, filteredData.length)} Lab Requests of ${
+          }-${Math.min(
+            (currentPage + 1) * pageSize,
             filteredData.length
-          } Lab Requests`}
+          )} Lab Requests of ${filteredData.length} Lab Requests`}
         </Text>
         <Flex align="center" gap="2">
           <Button
-            onClick={() => setCurrentPage(currentPage - 1)}
+            onClick={() => {
+              if (currentPage > 0) {
+                setCurrentPage(currentPage - 1);
+              }
+            }}
             variant="light"
             size="sm"
             disabled={currentPage === 0}
@@ -467,9 +558,11 @@ export default function RequestLabTable({ patient }) {
             <ChevronLeftIcon />
           </Button>
           <Button
-            onClick={() => setCurrentPage(currentPage + 1)}
-            variant="light"
-            size="sm"
+            onClick={() => {
+              if (currentPage < totalPages - 1) {
+                setCurrentPage(currentPage + 1);
+              }
+            }}
             disabled={currentPage >= totalPages - 1}
           >
             <ChevronRightIcon />
@@ -477,7 +570,7 @@ export default function RequestLabTable({ patient }) {
         </Flex>
       </Flex>
       {isEditModalOpen && (
-        <EditRequestLabModal
+        <EditLabExamModal
           isOpen={isEditModalOpen}
           onClose={() => {
             setIsEditModalOpen(false);
@@ -485,6 +578,7 @@ export default function RequestLabTable({ patient }) {
             setSelectedRowIndex(null);
           }}
           initialData={selectedEditData}
+          labExamOptions={[]} // Optionally pass a custom lab exam options array here.
           onSave={handleModalSave}
         />
       )}
@@ -497,7 +591,9 @@ export default function RequestLabTable({ patient }) {
             setSelectedDeleteRowIndex(null);
           }}
           onConfirm={handleDelete}
-          recordDate={selectedDeleteData ? selectedDeleteData.requestLabsDates : ""}
+          recordDate={
+            selectedDeleteData ? selectedDeleteData.requestLabsDates : ""
+          }
         />
       )}
     </Card>

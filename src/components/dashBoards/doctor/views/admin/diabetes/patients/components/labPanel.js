@@ -1,14 +1,7 @@
-import React from "react";
+import React, { useState, useEffect } from "react";
 import {
   Box,
-  Flex,
-  Heading,
   Text,
-  Menu,
-  MenuButton,
-  MenuList,
-  MenuItem,
-  Button,
   Tabs,
   TabList,
   TabPanels,
@@ -16,24 +9,39 @@ import {
   TabPanel,
   useColorModeValue,
 } from "@chakra-ui/react";
-import { ChevronDownIcon } from "@chakra-ui/icons";
 import { DiabPatientData } from "../../../../../../../../DBConnection/DiabetesPatients";
 import RequestLabTable from "./labs/requestLabTable";
 import LabResultTable from "./labs/labResultsTable";
 
 export default function LabPanel() {
   const bgHeader = useColorModeValue("white", "gray.700");
-
-  // Get patient data as in your DaibPatientInfo component.
   const patient = DiabPatientData();
+
+  // State for active tab index; using a unique key for LabPanel
+  const [labTabIndex, setLabTabIndex] = useState(0);
+
+  // Retrieve the active tab index from localStorage on mount
+  useEffect(() => {
+    const savedTab = localStorage.getItem("labActiveTab");
+    if (savedTab !== null) {
+      setLabTabIndex(Number(savedTab));
+    }
+  }, []);
+
+  // Update the active tab index and save it to localStorage when changed
+  const handleLabTabsChange = (index) => {
+    setLabTabIndex(index);
+    localStorage.setItem("labActiveTab", index);
+  };
+
   if (!patient) {
     return <Text>Loading...</Text>;
   }
 
   return (
     <Box>
-      {/* Tabs */}
-      <Tabs>
+      {/* Tabs with controlled state */}
+      <Tabs index={labTabIndex} onChange={handleLabTabsChange}>
         <TabList>
           <Tab
             _selected={{
@@ -55,11 +63,9 @@ export default function LabPanel() {
           </Tab>
         </TabList>
         <TabPanels>
-          {/* Tab 1: Lab Results */}
           <TabPanel p="20px" borderRadius="md" boxShadow="sm">
             <RequestLabTable patient={patient} />
           </TabPanel>
-          {/* Tab 2: Lab Requests (Empty) */}
           <TabPanel p="20px" borderRadius="md" boxShadow="sm">
             <LabResultTable patient={patient} />
           </TabPanel>

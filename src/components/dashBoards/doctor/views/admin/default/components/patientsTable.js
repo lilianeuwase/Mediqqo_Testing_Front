@@ -192,13 +192,20 @@ export default function PatientsTable(props) {
           Diagnosis
         </Text>
       ),
-      cell: (info) => (
-        <Flex align="center">
-          <Text me="10px" color={textColor} fontSize="sm" fontWeight="700">
-            {info.getValue()}
-          </Text>
-        </Flex>
-      ),
+      cell: (info) => {
+        const diagnosisArray = info.getValue();
+        const lastDiagnosis =
+          Array.isArray(diagnosisArray) && diagnosisArray.length > 0
+            ? diagnosisArray[diagnosisArray.length - 1]
+            : diagnosisArray;
+        return (
+          <Flex align="center">
+            <Text me="10px" color={textColor} fontSize="sm" fontWeight="700">
+              {lastDiagnosis}
+            </Text>
+          </Flex>
+        );
+      },
     }),
   ];
 
@@ -364,17 +371,24 @@ export default function PatientsTable(props) {
         </Text>
         <Flex align="center" gap="2">
           <Button
-            onClick={() => setCurrentPage(currentPage - 1)}
+            onClick={() => {
+              if (currentPage > 0) {
+                setCurrentPage(currentPage - 1);
+              }
+            }}
             variant="light"
             size="sm"
             disabled={currentPage === 0}
           >
             <ChevronLeftIcon />
           </Button>
+
           <Button
-            onClick={() => setCurrentPage(currentPage + 1)}
-            variant="light"
-            size="sm"
+            onClick={() => {
+              if (currentPage < totalPages - 1) {
+                setCurrentPage(currentPage + 1);
+              }
+            }}
             disabled={currentPage >= totalPages - 1}
           >
             <ChevronRightIcon />

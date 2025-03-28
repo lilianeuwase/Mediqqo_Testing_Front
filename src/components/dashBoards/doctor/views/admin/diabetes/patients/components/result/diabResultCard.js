@@ -10,6 +10,7 @@ import {
   Box,
   Divider,
 } from "@chakra-ui/react";
+import toTitleCase from "../../../../../../components/common/toTitleCase";
 
 export default function DiabResultCard({ patient }) {
   if (!patient || !patient.diagnosis || patient.diagnosis.length === 0) {
@@ -24,7 +25,9 @@ export default function DiabResultCard({ patient }) {
       ? patient.patient_manage[latestIndex]
       : "",
     medication: patient.medication ? patient.medication[latestIndex] : "",
-    dosage: patient.dosage ? patient.dosage[latestIndex] : "",
+    dosageMed: patient.dosage ? patient.dosage[latestIndex][0] : "",
+    dosageUnit: patient.dosage ? patient.dosage[latestIndex][1] : "",
+    dosageTime: patient.dosage ? patient.dosage[latestIndex][2] : "",
     control: patient.control ? patient.control[latestIndex] : "",
     doctor_comment: patient.doctor_comment
       ? patient.doctor_comment[latestIndex]
@@ -32,9 +35,7 @@ export default function DiabResultCard({ patient }) {
     resultComment: patient.resultComment
       ? patient.resultComment[latestIndex]
       : "",
-      appointment: patient.appointment
-      ? patient.appointment[latestIndex]
-      : "",
+    appointment: patient.appointment ? patient.appointment[latestIndex] : "",
   };
 
   let cardBgColor;
@@ -63,7 +64,8 @@ export default function DiabResultCard({ patient }) {
                 Diagnosis
               </Heading>
               <Text pt="2" fontSize="sm">
-                Consultation #{latestResult.consultations}: {latestResult.diagnosis}
+                Consultation #{latestResult.consultations}:{" "}
+                {latestResult.diagnosis}
               </Text>
             </Box>
             <Box>
@@ -90,7 +92,11 @@ export default function DiabResultCard({ patient }) {
                 Dosage
               </Heading>
               <Text pt="2" fontSize="sm">
-                {latestResult.dosage}
+                {toTitleCase(latestResult.dosageMed)}
+                <br />
+                {toTitleCase(latestResult.dosageUnit)}
+                <br />
+                {toTitleCase(latestResult.dosageTime)}
               </Text>
             </Box>
           </Stack>

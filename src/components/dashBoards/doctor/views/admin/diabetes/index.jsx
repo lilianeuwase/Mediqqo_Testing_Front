@@ -2,8 +2,6 @@
 import { Box, SimpleGrid } from "@chakra-ui/react";
 import { columnsDataDevelopment } from "../../../views/admin/diabetes/variables/columnsData";
 import React from "react";
-import DiabetesRetrieval from "../../../views/admin/diabetes/components/diabetesRetrieval";
-import DiabetesConsult from "./components/diabetesConsult";
 import { DiabetesPatients } from "../../../../../../DBConnection/DiabetesPatients";
 import PatientsTable from "../default/components/patientsTable";
 import { UserData } from "../../../../../../DBConnection/UserData";

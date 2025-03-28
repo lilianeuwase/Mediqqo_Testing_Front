@@ -1201,17 +1201,24 @@ export default function AdditionalInfoTable({ patient }) {
         </Text>
         <Flex align="center" gap="2">
           <Button
-            onClick={() => setCurrentPage(currentPage - 1)}
+            onClick={() => {
+              if (currentPage > 0) {
+                setCurrentPage(currentPage - 1);
+              }
+            }}
             variant="light"
             size="sm"
             disabled={currentPage === 0}
           >
             <ChevronLeftIcon />
           </Button>
+
           <Button
-            onClick={() => setCurrentPage(currentPage + 1)}
-            variant="light"
-            size="sm"
+            onClick={() => {
+              if (currentPage < totalPages - 1) {
+                setCurrentPage(currentPage + 1);
+              }
+            }}
             disabled={currentPage >= totalPages - 1}
           >
             <ChevronRightIcon />

@@ -1,13 +1,8 @@
-// DiabResultCalculate.js
 import React, { useEffect, useState } from "react";
 import { Button, Alert, AlertIcon, Center } from "@chakra-ui/react";
 
 // -------------- UTILITY FUNCTIONS -------------- //
 
-/**
- * Extracts the numeric portion from a dosage triple.
- * Example: ["METFORMIN", "500mg", "twice a day"] returns 500.
- */
 function parseDosageValue(dosageTriple) {
   if (!dosageTriple || dosageTriple.length < 3) return NaN;
   const doseStr = dosageTriple[1]; // e.g., "500mg"
@@ -16,21 +11,14 @@ function parseDosageValue(dosageTriple) {
   return parseFloat(match[1]);
 }
 
-/**
- * Adjusts the numeric portion of the dosage triple by a given percentage.
- * For example, ["METFORMIN", "500mg", "twice a day"] with 15 returns ["METFORMIN", "575mg", "twice a day"].
- */
 function adjustDosage(dosageTriple, percentage) {
   const currentValue = parseDosageValue(dosageTriple);
   if (isNaN(currentValue)) return dosageTriple;
   const newValue = currentValue * (1 + percentage / 100);
-  const newValueStr = newValue.toFixed(0) + "mg"; // keep unit "mg"
+  const newValueStr = newValue.toFixed(2) + " units/kg"; // keep two decimal places
   return [dosageTriple[0], newValueStr, dosageTriple[2]];
 }
 
-/**
- * Returns a default insulin dosage triple based on the fast blood glucose value.
- */
 function makeInsulinDosage(value) {
   let doseNum = 0.1;
   if (value > 300) doseNum = 0.2;
@@ -41,11 +29,6 @@ function makeInsulinDosage(value) {
   return ["INSULIN THERAPY", doseStr, "once daily"];
 }
 
-/**
- * Returns a default oral dosage triple based on BMI.
- * Example: if BMI > 25, return ["METFORMIN", "500mg", "twice a day"];
- * otherwise, return ["GLIBENCLAMIDE", "5mg", "once a day"].
- */
 function makeOralDosage(bmiValue) {
   if (bmiValue > 25) {
     return ["METFORMIN", "500mg", "twice a day"];
@@ -92,25 +75,22 @@ const ErrorPopup = ({ message, onClose }) => (
 // -------------- MAIN COMPONENT -------------- //
 
 const DiabResultCalculate = ({ patient }) => {
+  // State variables
   const [processing, setProcessing] = useState(false);
   const [error, setError] = useState(null);
   const [apiHost, setApiHost] = useState("");
-  // New state for displaying alert messages.
   const [alertMsg, setAlertMsg] = useState("");
-
-  // Track the number of processed consultations locally.
-  const [processedCount, setProcessedCount] = useState(
-    patient.diagnosis ? patient.diagnosis.length : 0
-  );
+  // Use patient.consultations (from the DB) for consultation count.
+  const [processedCount, setProcessedCount] = useState(patient.consultations || 0);
 
   const dismissError = () => setError(null);
 
-  // Update processedCount if the patient prop changes.
+  // Update processedCount when patient data changes.
   useEffect(() => {
-    setProcessedCount(patient.diagnosis ? patient.diagnosis.length : 0);
+    setProcessedCount(patient.consultations || 0);
   }, [patient]);
 
-  // Load the API host URL from a text file (placed in your public folder as apiHost.txt)
+  // Load API host from apiHost.txt
   useEffect(() => {
     fetch("/apiHost.txt")
       .then((res) => res.text())
@@ -118,12 +98,9 @@ const DiabResultCalculate = ({ patient }) => {
       .catch((err) => console.error("Error loading API host:", err));
   }, []);
 
-  // Manual trigger function for processing results
   const processResults = async () => {
-    // Clear any previous alert message.
     setAlertMsg("");
-    
-    // Validate required patient data.
+
     if (
       !patient ||
       !patient.vitalsDates ||
@@ -135,17 +112,18 @@ const DiabResultCalculate = ({ patient }) => {
       return;
     }
 
+    // Determine how many complete consultations are available.
     const fullCircleCount = Math.min(
       patient.vitalsDates.length,
       patient.labDates.length,
       patient.doctorDates.length
     );
 
-    // Only process new consultations if there are more dates than results already processed.
-    if (fullCircleCount <= processedCount) {
-      setAlertMsg("No new consultations to process.");
+    if (fullCircleCount === 0) {
+      setAlertMsg("No consultations available to process.");
       return;
     }
+
     if (!apiHost) {
       console.log("API host not loaded yet.");
       return;
@@ -153,8 +131,15 @@ const DiabResultCalculate = ({ patient }) => {
 
     setProcessing(true);
 
-    // Process consultations starting from the processedCount index.
-    for (let i = processedCount; i < fullCircleCount; i++) {
+    // Capture previous processed count and read existing count from DB field
+    const oldProcessedCount = processedCount;
+    const existingCount = patient.consultations || 0; // number of consultations stored in the DB
+
+    let newConsultations = 0;
+    let updatedConsultations = 0;
+
+    // Loop over all available consultations
+    for (let i = 0; i < fullCircleCount; i++) {
       const fastValue = parseFloat(patient.fastglucose[i]);
       const gluValue = parseFloat(patient.glucose[i]);
       const hbValue = parseFloat(patient.hb[i]);
@@ -163,7 +148,6 @@ const DiabResultCalculate = ({ patient }) => {
         continue;
       }
 
-      // Flatten nested arrays from the patient record fields.
       const flattenedDangerSigns = patient.dangerSigns ? patient.dangerSigns.flat() : [];
       const flattenedComorbidities = patient.comorbidities ? patient.comorbidities.flat() : [];
       const flattenedComplications = patient.complications ? patient.complications.flat() : [];
@@ -180,12 +164,11 @@ const DiabResultCalculate = ({ patient }) => {
       let diagnosis = "";
       let patient_manage = "";
       let medication = "";
-      let comment = "";
-      let dosageTriple = ["", "", ""]; // Triple: [medication name, dose, schedule]
+      let resultComment = "";
+      let dosageTriple = ["", "", ""];
+      let control = "N/A";
 
-      // ------------------------------
-      // 1) INITIAL CONSULTATION (i === 0)
-      // ------------------------------
+      // Decision tree for the first consultation
       if (i === 0) {
         const immediateTransfer =
           gluValue > 400 ||
@@ -203,7 +186,7 @@ const DiabResultCalculate = ({ patient }) => {
           diagnosis = "Diabetes";
           patient_manage = "Transfer patients to the hospital to initiate insulin";
           medication = "Insulin Therapy";
-          comment =
+          resultComment =
             "Immediate transfer: criteria met (>400 mg/dL, pregnancy, renal/foot ulcer, or age <18).";
           dosageTriple = makeInsulinDosage(fastValue);
         } else {
@@ -213,13 +196,13 @@ const DiabResultCalculate = ({ patient }) => {
                 diagnosis = "Diabetes";
                 patient_manage = "Transfer patients to the hospital to initiate insulin";
                 medication = "Insulin Therapy";
-                comment = "Severe condition: immediate action required.";
+                resultComment = "Severe condition: immediate action required.";
                 dosageTriple = makeInsulinDosage(fastValue);
               } else {
                 diagnosis = "Diabetes";
                 patient_manage = "Manage as an Outpatient (OPD)";
                 medication = "Oral Therapy";
-                comment = "Diabetes confirmed with high lab values.";
+                resultComment = "Diabetes confirmed with high lab values.";
                 const currentBMI =
                   patient.bmi && patient.bmi[i] ? parseFloat(patient.bmi[i]) : 0;
                 dosageTriple = makeOralDosage(currentBMI);
@@ -228,19 +211,17 @@ const DiabResultCalculate = ({ patient }) => {
               diagnosis = "Second Consultation is Needed to Confirm";
               patient_manage = "Follow Up Visit in 2-4 Weeks";
               medication = "None";
-              comment = "Second consultation needed to confirm diagnosis.";
+              resultComment = "Second consultation needed to confirm diagnosis.";
             }
           } else {
             diagnosis = "No Diabetes";
             patient_manage = "No Further Comment";
             medication = "None";
-            comment = "Stop Diabetes Workup If Present.";
+            resultComment = "Stop Diabetes Workup If Present.";
           }
         }
       }
-      // ------------------------------
-      // 2) RECONSULTATIONS (i > 0)
-      // ------------------------------
+      // Decision tree for subsequent consultations
       else {
         const prevMed =
           patient.medication && patient.medication[i - 1]
@@ -256,7 +237,7 @@ const DiabResultCalculate = ({ patient }) => {
             diagnosis = "Diabetes";
             patient_manage = "Manage as an Outpatient (OPD)";
             medication = "Oral Therapy";
-            comment = "Confirmed on follow-up: repeated abnormal labs.";
+            resultComment = "Confirmed on follow-up: repeated abnormal labs.";
             const currentBMI =
               patient.bmi && patient.bmi[i] ? parseFloat(patient.bmi[i]) : 0;
             dosageTriple = makeOralDosage(currentBMI);
@@ -276,7 +257,7 @@ const DiabResultCalculate = ({ patient }) => {
               diagnosis = "Diabetes";
               patient_manage = "Transfer patients to the hospital to initiate insulin";
               medication = "Insulin Therapy";
-              comment = "Immediate transfer on reconsultation: criteria met.";
+              resultComment = "Immediate transfer on reconsultation: criteria met.";
               dosageTriple = makeInsulinDosage(fastValue);
             } else {
               if (fastValue >= 126 || gluValue >= 126 || hbValue >= 6.5) {
@@ -285,13 +266,13 @@ const DiabResultCalculate = ({ patient }) => {
                     diagnosis = "Diabetes";
                     patient_manage = "Transfer patients to the hospital to initiate insulin";
                     medication = "Insulin Therapy";
-                    comment = "Severe condition on reconsultation.";
+                    resultComment = "Severe condition on reconsultation.";
                     dosageTriple = makeInsulinDosage(fastValue);
                   } else {
                     diagnosis = "Diabetes";
                     patient_manage = "Manage as an Outpatient (OPD)";
                     medication = "Oral Therapy";
-                    comment = "Diabetes confirmed on reconsultation.";
+                    resultComment = "Diabetes confirmed on reconsultation.";
                     const currentBMI =
                       patient.bmi && patient.bmi[i] ? parseFloat(patient.bmi[i]) : 0;
                     dosageTriple = makeOralDosage(currentBMI);
@@ -300,30 +281,28 @@ const DiabResultCalculate = ({ patient }) => {
                   diagnosis = "No Diabetes";
                   patient_manage = "No Further Comment";
                   medication = "None";
-                  comment = "Stop Diabetes Workup If Present.";
+                  resultComment = "Stop Diabetes Workup If Present.";
                 }
               } else {
                 diagnosis = "No Diabetes";
                 patient_manage = "No Further Comment";
                 medication = "None";
-                comment = "Stop Diabetes Workup If Present.";
+                resultComment = "Stop Diabetes Workup If Present.";
               }
             }
           }
-        }
-        // Hypoglycemia branch.
-        else if (fastValue <= 50) {
+        } else if (fastValue <= 50) {
           diagnosis = "Hypoglycemia";
           patient_manage = "Patient is Hypoglycemia";
           medication = "N/A";
-          comment = "Immediate attention required for hypoglycemia.";
+          resultComment = "Immediate attention required for hypoglycemia.";
           if (prevMed && prevMed.toLowerCase().includes("insulin")) {
             const prevDosage =
               patient.dosage && patient.dosage.length > 0
                 ? patient.dosage[patient.dosage.length - 1]
                 : ["", "", ""];
             dosageTriple = adjustDosage(prevDosage, -15);
-            comment += " Instruct patient to carry sugary drink";
+            resultComment += " Instruct patient to carry sugary drink";
           } else {
             dosageTriple = ["", "", ""];
           }
@@ -331,7 +310,7 @@ const DiabResultCalculate = ({ patient }) => {
           diagnosis = "Diabetes";
           patient_manage = "Medication/Insulin Titrations Required";
           medication = "";
-          comment = "Adjust medication as needed.";
+          resultComment = "Adjust medication as needed.";
           if (prevMed && prevMed.toLowerCase().includes("insulin")) {
             const prevDosage =
               patient.dosage && patient.dosage.length > 0
@@ -348,83 +327,107 @@ const DiabResultCalculate = ({ patient }) => {
         }
       }
 
-      // ------------------------------
-      // CONTROL LOGIC (Only for follow-up visits, i > 0)
-      // ------------------------------
-      let control = "N/A";
-      if (i > 0) {
-        if (gluValue > 400) {
-          control = "Emergency Control";
-          medication = "Requires emergency attention!";
-        } else if (
-          (fastValue >= 150 && fastValue <= 180) ||
-          (hbValue >= 7.5 && hbValue <= 8.0)
-        ) {
-          control = "Good Control";
-          if (medication.toLowerCase().includes("insulin")) {
-            patient_manage = "Maintain insulin dose";
-            comment += " Monitor blood glucose with twice daily urine dipsticks";
-          } else {
-            patient_manage = "No medication/insulin changes required";
-            medication = "";
-          }
-        } else if (fastValue > 185 || hbValue > 8.0) {
-          control = "Poor Control";
-          if (medication.toLowerCase().includes("insulin")) {
-            const prevDosage =
-              patient.dosage && patient.dosage.length > 0
-                ? patient.dosage[patient.dosage.length - 1]
-                : ["", "", ""];
-            dosageTriple = adjustDosage(prevDosage, 15);
-            comment +=
-              " Monitor with twice daily fingersticks for 2 weeks, Patients should follow-up";
-            patient_manage +=
-              " Monitor with twice daily fingersticks for 2 weeks, Patients should follow-up";
-          } else {
-            patient_manage = "Medication/Insulin titrations required";
-            medication = "Medication/Insulin titrations required";
-          }
+      // For existing consultations (based on DB field patient.consultations), update via edit API.
+      if (i < existingCount) {
+        updatedConsultations++;
+        const payload = {
+          phone_number: patient.phone_number,
+          recordIndex: i,
+          patient_manage,
+          medication,
+          dosage: dosageTriple,
+          resultComment,
+        };
+        try {
+          await fetch(apiHost + "/editDiabResultBack", {
+            method: "POST",
+            headers: {
+              "Content-Type": "application/json",
+              Accept: "application/json",
+              "Access-Control-Allow-Origin": "*",
+            },
+            body: JSON.stringify(payload),
+          });
+        } catch (err) {
+          console.error(`Error updating result for consultation ${i}:`, err);
         }
-      }
-
-      // ------------------------------
-      // SEND RESULTS TO BACKEND
-      // ------------------------------
-      try {
-        const response = await fetch(`${apiHost}/registerDiabResult`, {
-          method: "POST",
-          headers: {
-            "Content-Type": "application/json",
-            Accept: "application/json",
-            "Access-Control-Allow-Origin": "*",
-          },
-          body: JSON.stringify({
-            phone_number: patient.phone_number,
-            diagnosis,
-            patient_manage,
-            medication,
-            consultations: i + 1,
-            control,
-            dosage: dosageTriple,
-            resultComment: comment,
-          }),
-        });
-        const data = await response.json();
-        if (!data.status || data.status !== "ok") {
-          console.error(`Error updating result for consultation ${i}: ${data.error}`);
+      } else {
+        newConsultations++;
+        const payload = {
+          phone_number: patient.phone_number,
+          diagnosis,
+          patient_manage,
+          medication,
+          control,
+          dosage: dosageTriple,
+          resultComment,
+        };
+        try {
+          await fetch(apiHost + "/registerDiabResultBack", {
+            method: "POST",
+            headers: {
+              "Content-Type": "application/json",
+              Accept: "application/json",
+              "Access-Control-Allow-Origin": "*",
+            },
+            body: JSON.stringify(payload),
+          });
+        } catch (err) {
+          console.error(`Error registering result for consultation ${i}:`, err);
         }
-      } catch (err) {
-        console.error(`Error updating result for consultation ${i}:`, err);
       }
     }
-    // Update processedCount so that only new data is processed next time.
+  
+    // If previously processed count is greater than current complete consultations,
+    // delete the extra results (loop in reverse).
+    if (oldProcessedCount > fullCircleCount) {
+      for (let i = oldProcessedCount - 1; i >= fullCircleCount; i--) {
+        try {
+          await fetch(apiHost + "/deleteDiabResultBack", {
+            method: "POST",
+            headers: {
+              "Content-Type": "application/json",
+              Accept: "application/json",
+              "Access-Control-Allow-Origin": "*",
+            },
+            body: JSON.stringify({
+              phone_number: patient.phone_number,
+              recordIndex: i,
+            }),
+          });
+        } catch (err) {
+          console.error(`Error deleting result for consultation ${i}:`, err);
+        }
+      }
+    }
+  
+    // Update processedCount to reflect current complete consultations.
     setProcessedCount(fullCircleCount);
     setProcessing(false);
+  
+    let message = "";
+    if (newConsultations === 0 && updatedConsultations > 0) {
+      message = "No new consultations to process. Results have been updated.";
+    } else if (newConsultations > 0 && updatedConsultations > 0) {
+      message = "New consultations processed. Existing results have been updated.";
+    } else if (newConsultations > 0) {
+      message = "New consultations processed.";
+    } else {
+      message = "No consultations to process.";
+    }
+    if (oldProcessedCount > fullCircleCount) {
+      message += " Extra results have been deleted.";
+    }
+    setAlertMsg(message);
+  
+    // Optionally reload the page after a short delay.
+    setTimeout(() => {
+      window.location.reload();
+    }, 2500);
   };
 
   return (
     <div style={{ padding: "20px" }}>
-      {/* Show an informational alert if there are no new consultations */}
       {alertMsg && (
         <Center my={4}>
           <Alert status="warning">
@@ -433,7 +436,7 @@ const DiabResultCalculate = ({ patient }) => {
           </Alert>
         </Center>
       )}
-      {!processing && !error && <p>Results have been sent to the database.</p>}
+      {!processing && !error && <p>Results have been saved</p>}
       {error && <ErrorPopup message={error} onClose={dismissError} />}
       <Button
         mt="4"
