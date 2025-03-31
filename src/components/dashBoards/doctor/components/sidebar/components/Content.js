@@ -1,6 +1,6 @@
 // chakra imports
 import { Box, Flex, Stack } from "@chakra-ui/react";
-//   Custom components
+// Custom components
 import Brand from "../../../components/sidebar/components/Brand";
 import Links from "../../../components/sidebar/components/Links";
 import SidebarCard from "../../../components/sidebar/components/SidebarCard";
@@ -10,9 +10,6 @@ import React from "react";
 
 function SidebarContent(props) {
   const { routes } = props;
-  const filteredRoutes = routes.filter(
-    (route) => route.name === 'NCD Clinic' || route.name === 'Diabetes' || route.name === 'Hypertension' || route.name === 'Asthma'|| route.name === 'Support' || route.name === 'Add User'
-  );
   // SIDEBAR
   return (
     <Flex
@@ -25,7 +22,7 @@ function SidebarContent(props) {
       <Brand />
       <Stack direction="column" mb="auto" mt="8px">
         <Box ps="20px" pe={{ md: "16px", "2xl": "1px" }}>
-          <Links routes={filteredRoutes} />
+          <Links routes={routes} />
         </Box>
         <Box ps="50px" pe={{ md: "16px", "2xl": "1px" }}></Box>
       </Stack>

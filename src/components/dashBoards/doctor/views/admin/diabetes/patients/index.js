@@ -27,7 +27,6 @@ import AdditionalInfoTable from "./components/additionalInfoTable";
 import ManagePatient from "./components/managePatient";
 import LabPanel from "./components/labPanel";
 import DiabResultTable from "./components/result/diabResultTable";
-import DiabResultCard from "./components/result/diabResultCard";
 import DiabPatientAppointment from "./components/actions/diabAppointment";
 import DiabResultCalculate from "./components/result/diabResultCalculate";
 import PatientAllInfo from "./components/patientAllInfo";

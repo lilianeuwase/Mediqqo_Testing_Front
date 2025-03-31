@@ -6,7 +6,7 @@ import {
 import React from "react";
 import AsthmaRetrieval from "../../../views/admin/asthma/components/asthmaRetrieval";
 import AsthmaConsult from "./components/asthmaConsult";
-import PatientsTable from "../default/components/patientsTable";
+import PatientsTable from "../diabetes/patients/components/patientsTable";
 import { AsthmaPatients } from "../../../../../../DBConnection/AsthmaPatients";
 
 export default function Settings() {

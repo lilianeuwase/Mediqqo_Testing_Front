@@ -1,6 +1,6 @@
 import React, { useState, useEffect } from "react";
 import { Link } from "react-router-dom";
-import "./comps/navbar.css";
+import "./landingPage/navbar.css";
 import "../components/buttons/button.css";
 
 import { MDBIcon } from "mdb-react-ui-kit";

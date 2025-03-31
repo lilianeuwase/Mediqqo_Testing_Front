@@ -15,7 +15,6 @@ import RTLLayout from "./components/dashBoards/doctor/layouts/rtl";
 import initialTheme from "./components/dashBoards/doctor/theme/theme"; //  { themeGreen }
 import { useState } from "react";
 import HomePage from "./pages/homepage";
-import UserDetails from "./components/userDetails";
 
 //Customized Links
 import SignInCentered from "./components/dashBoards/doctor/views/auth/signIn";
@@ -64,20 +63,6 @@ function AppUpdate() {
                 )
               }
             />
-
-            {/* Old Routes */}
-            {/* Diabetes */}
-            {/* <Route
-              exact
-              path="/admin/diabetes/newconsult"
-              element={
-                isLoggedIn == "true" ? (
-                  <Profile />
-                ) : (
-                  <SignInCentered />
-                )
-              }
-            /> */}
           </Routes>
         </div>
       </Router>

@@ -21,7 +21,6 @@ import {
   DrawerCloseButton,
   DrawerHeader,
   DrawerBody,
-  DrawerFooter,
   useDisclosure,
 } from "@chakra-ui/react";
 import {
@@ -33,12 +32,11 @@ import {
 } from "@tanstack/react-table";
 import { ChevronLeftIcon, ChevronRightIcon } from "@chakra-ui/icons";
 // Custom components
-import Card from "../../../../components/card/Card";
-import { HSeparator } from "../../../../components/separator/Separator";
-import { SearchBar } from "../../../../components/navbar/searchBar/SearchBar";
+import Card from "../../../../../components/card/Card";
+import { SearchBar } from "../../../../../components/navbar/searchBar/SearchBar";
 // Import the getDiabPatient function for row click
-import { getDiabPatient } from "../../../../../../../DBConnection/DiabetesPatients";
-import PatientProfile from "../../diabetes/new/patientProfile";
+import { getDiabPatient } from "../../../../../../../../DBConnection/DiabetesPatients";
+import PatientProfile from "../../../diabetes/new/patientProfile";
 
 // Import the PatientProfile component to show in the drawer
 
@@ -319,7 +317,13 @@ export default function PatientsTable(props) {
                   key={row.id}
                   cursor="pointer"
                   _hover={{ bg: hoverBg }}
-                  onClick={() => getDiabPatient(row.original.phone_number)}
+                  onClick={() => {
+                    const identifier =
+                      row.original.phone_number ||
+                      row.original.ID ||
+                      row.original.uniqueID;
+                    getDiabPatient(identifier);
+                  }}
                 >
                   {row.getVisibleCells().map((cell) => {
                     return (

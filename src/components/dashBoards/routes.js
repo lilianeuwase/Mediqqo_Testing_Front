@@ -7,7 +7,8 @@ import {
   MdFilter2,
   MdFilter3,
   MdContactSupport,
-  MdAddReaction
+  MdHowToReg,
+  MdMiscellaneousServices
 } from 'react-icons/md';
 
 // Admin Imports
@@ -18,16 +19,12 @@ import RTL from './doctor/views/admin/rtl';
 
 //Diabetes
 import Diabetes from './doctor/views/admin/diabetes';
-import { UserData } from '../../DBConnection/UserData';
-import AddUser from './admin/addUser';
-import PatientProfile from './doctor/views/admin/diabetes/new/patientProfile';
-import ProfileCard from './doctor/views/admin/diabetes/patients/components/profileCard';
 import DaibPatientInfo from './doctor/views/admin/diabetes/patients';
-import PatientVitalSigns from './doctor/views/admin/diabetes/new/patientVitalSigns';
 
-//Clinic
-// import { UserData } from "../../DBConnection/UserData";
-// const MainDashboard_name = "NCD Clinic" + "   |   " + UserData().hospital;
+//Users
+import UserSettings from './admin/users';
+import UserInfo from './admin/users/existing';
+
 
 const routes = [
   {
@@ -52,8 +49,10 @@ const routes = [
     icon: <Icon as={MdFilter1} width="20px" height="20px" color="inherit" />,
     path: '/diabetes/diabprofilecard',
     component: <DaibPatientInfo/>,
+    showInSidebar: false,
   },
 
+  //Hypertension
   {
     name: 'Hypertension',
     layout: '/admin',
@@ -61,6 +60,8 @@ const routes = [
     path: '/hypertension',
     component: <Hypertension />,
   },
+
+  //Asthma
   {
     name: 'Asthma',
     layout: '/admin',
@@ -68,13 +69,31 @@ const routes = [
     path: '/asthma',
     component: <Asthma />,
   },
+
+  //Admin
   {
-    name: 'Add User',
+    name: 'Users',
     layout: '/admin',
-    path: '/adduser',
-    icon: <Icon as={MdAddReaction} width="20px" height="20px" color="inherit" />,
-    component: <AddUser />,
+    icon: <Icon as={MdHowToReg} width="20px" height="20px" color="inherit" />,
+    path: '/users',
+    component: <UserSettings />,
   },
+  {
+    name: 'User Card',
+    layout: '/admin',
+    icon: <Icon as={MdFilter1} width="20px" height="20px" color="inherit" />,
+    path: '/users/userprofilecard',
+    component: <UserInfo/>,
+    showInSidebar: false,
+  },
+  {
+    name: 'Permissions',
+    layout: '/admin',
+    icon: <Icon as={MdMiscellaneousServices} width="20px" height="20px" color="inherit" />,
+    path: '/permissions',
+   
+  },
+
   {
     name: 'Support',
     layout: '/rtl',
@@ -83,13 +102,13 @@ const routes = [
     component: <RTL />,
   },
 
-  {
-    name: 'View',
-    layout: '/admin',
-    path: '/view',
-    icon: <Icon as={MdContactSupport} width="20px" height="20px" color="inherit" />,
-    component: <PatientVitalSigns />,
-  },
+  // {
+  //   name: 'View',
+  //   layout: '/admin',
+  //   path: '/view',
+  //   icon: <Icon as={MdContactSupport} width="20px" height="20px" color="inherit" />,
+  //   component: <PatientVitalSigns />,
+  // },
 
 
 ];

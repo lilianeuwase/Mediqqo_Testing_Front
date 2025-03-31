@@ -1,6 +1,6 @@
 import { faB } from "@fortawesome/free-solid-svg-icons";
 import React from "react";
-import Navbar from "../components/comps/navbar";
+import Navbar from "../components/landingPage/navbar";
 import UserTable from "../components/tables/userTable";
 
 

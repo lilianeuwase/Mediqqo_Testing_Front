@@ -8,12 +8,6 @@ import MiniCalendar from "../../../components/calendar/MiniCalendar";
 import MiniStatistics from "../../../components/card/MiniStatistics";
 import IconBox from "../../../components/icons/IconBox";
 import React, { useEffect, useState } from "react";
-import {
-  MdAddTask,
-  MdAttachMoney,
-  MdBarChart,
-  MdFileCopy,
-} from "react-icons/md";
 import AppointmentTable from "./components/AppointmentTable.js";
 import PieCard from "../../../views/admin/default/components/PieCard";
 import { columnsDataCheck } from "../../../views/admin/default/variables/columnsData";

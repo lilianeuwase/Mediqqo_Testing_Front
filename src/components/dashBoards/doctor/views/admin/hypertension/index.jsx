@@ -6,7 +6,7 @@ import {
 import React from "react";
 import HypertensionRetrieval from "../../../views/admin/hypertension/components/hypertensionRetrieval";
 import HypertensionConsult from "./components/hypertensionConsult";
-import PatientsTable from "../default/components/patientsTable";
+import PatientsTable from "../diabetes/patients/components/patientsTable";
 import { HypertensionPatients } from "../../../../../../DBConnection/HypertensionPatients";
 
 export default function Settings() {

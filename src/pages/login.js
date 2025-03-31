@@ -11,7 +11,7 @@ import {
 } from "mdb-react-ui-kit";
 import "./login.css";
 import "../components/buttons/button.css";
-import Logo from "../components/comps/logo";
+import Logo from "../components/landingPage/logo";
 
 export default function Login() {
   const [email, setEmail] = useState("");

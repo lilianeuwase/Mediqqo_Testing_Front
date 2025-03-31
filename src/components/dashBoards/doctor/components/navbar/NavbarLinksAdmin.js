@@ -43,8 +43,8 @@ export default function HeaderLinks(props) {
   );
   const borderButton = useColorModeValue("secondaryGray.500", "whiteAlpha.200");
   const userData = UserData();
-  const fname = userData?.fname || "Loading...";
-  const lname = userData?.lname || "Loading...";
+  const fname = userData?.fname || "";
+  const lname = userData?.lname || "";
   const name1 = fname + " " + lname;
 
   //logout

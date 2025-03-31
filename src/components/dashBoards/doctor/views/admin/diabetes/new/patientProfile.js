@@ -351,7 +351,6 @@ function PatientProfile() {
     // Send profile data to the Profile API
     fetch(
       `${apiHost}/registerDiabPatientProfile`,
-      // "http://localhost:3001/registerDiabPatientProfile", 
       {
         method: "POST",
         headers: { "Content-Type": "application/json" },

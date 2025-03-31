@@ -1,9 +1,8 @@
 // Chakra imports
 import { Box, SimpleGrid } from "@chakra-ui/react";
-import { columnsDataDevelopment } from "../../../views/admin/diabetes/variables/columnsData";
 import React from "react";
 import { DiabetesPatients } from "../../../../../../DBConnection/DiabetesPatients";
-import PatientsTable from "../default/components/patientsTable";
+import PatientsTable from "./patients/components/patientsTable";
 import { UserData } from "../../../../../../DBConnection/UserData";
 
 export default function Settings() {
@@ -27,7 +26,6 @@ export default function Settings() {
         spacing={{ base: "20px", xl: "20px" }}
       >
         <PatientsTable
-          columnsData={columnsDataDevelopment}
           tableData={filteredPatients}
         />
       </SimpleGrid>

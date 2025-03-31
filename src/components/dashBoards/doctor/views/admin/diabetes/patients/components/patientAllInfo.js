@@ -297,7 +297,7 @@ export default function PatientAllInfo({ patient }) {
             />
             {/* Dropdown for column selection */}
             <Menu>
-              <MenuButton as={Button} rightIcon={<ChevronDownIcon />}>
+              <MenuButton as={Button} rightIcon={<ChevronDownIcon />} colorScheme="secondaryGray">
                 Select Columns
               </MenuButton>
               <MenuList>
@@ -367,6 +367,7 @@ export default function PatientAllInfo({ patient }) {
                       borderColor={borderColor}
                       py="5px"
                       px="3px"
+                      textAlign="center"
                     >
                       {flexRender(
                         cell.column.columnDef.cell,
