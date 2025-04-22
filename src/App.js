@@ -1,4 +1,3 @@
-import "../src/components/dashBoards/doctor/assets/css/AppUser.css";
 import React from "react";
 import { BrowserRouter as Router, Routes, Route } from "react-router-dom";
 
@@ -6,28 +5,28 @@ import {
   ChakraProvider,
   // extendTheme
 } from "@chakra-ui/react";
-import "../src/components/dashBoards/doctor/assets/css/AppUser.css";
+import "./components/dashBoards/common/assets/css/AppUser.css";
 import { Navigate } from "react-router-dom";
 import {} from "react-router-dom";
-import AuthLayout from "./components/dashBoards/doctor/layouts/auth";
-import AdminLayout from "./components/dashBoards/doctor/layouts/admin";
-import RTLLayout from "./components/dashBoards/doctor/layouts/rtl";
-import initialTheme from "./components/dashBoards/doctor/theme/theme"; //  { themeGreen }
+import AuthLayout from "./components/dashBoards/common/layouts/auth";
+import AdminLayout from "./components/dashBoards/common/layouts/admin";
+import RTLLayout from "./components/dashBoards/common/layouts/rtl";
+import initialTheme from "./components/dashBoards/common/theme/theme"; //  { themeGreen }
 import { useState } from "react";
-import HomePage from "./pages/homepage";
+import HomePage from "./components/landingPage";
 
 //Customized Links
-import SignInCentered from "./components/dashBoards/doctor/views/auth/signIn";
+import SignInCentered from "./components/dashBoards/signIn";
 
 
-function AppUpdate() {
+function App() {
   const isLoggedIn = window.localStorage.getItem("loggedIn");
   const [currentTheme, setCurrentTheme] = useState(initialTheme); //Chakra
   return (
     //Chakra
     <ChakraProvider theme={currentTheme}>
       <Router>
-        <div className="AppUpdate">
+        <div className="App">
           <Routes>
             <Route path="/" element={<HomePage />} />
             <Route path="auth/*" element={<AuthLayout />} />
@@ -70,4 +69,4 @@ function AppUpdate() {
   );
 }
 
-export default AppUpdate;
+export default App;

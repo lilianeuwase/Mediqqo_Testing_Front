@@ -12,14 +12,14 @@ import {
 } from 'react-icons/md';
 
 // Admin Imports
-import MainDashboard from './doctor/views/admin/default';
-import Hypertension from './doctor/views/admin/hypertension';
-import Asthma from './doctor/views/admin/asthma';
-import RTL from './doctor/views/admin/rtl';
+import MainDashboard from './hospital/default';
+import Hypertension from './hospital/hypertension';
+import Asthma from './hospital/asthma';
+import RTL from "../dashBoards/admin/rtl";
 
 //Diabetes
-import Diabetes from './doctor/views/admin/diabetes';
-import DaibPatientInfo from './doctor/views/admin/diabetes/patients';
+import Diabetes from './hospital/diabetes';
+import DaibPatientInfo from './hospital/diabetes/patients';
 
 //Users
 import UserSettings from './admin/users';

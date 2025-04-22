@@ -1,6 +1,6 @@
 import React from "react";
 import { Box, Flex, Text, useColorModeValue } from "@chakra-ui/react";
-import Card from "../../../../doctor/components/card/Card";
+import Card from "../../../../common/components/card/Card";
 
 export default function UserProfileCard({ user }) {
   // Color settings

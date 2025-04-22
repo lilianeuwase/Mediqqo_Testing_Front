@@ -19,7 +19,7 @@ import {
   ModalBody,
   ModalFooter,
 } from "@chakra-ui/react";
-import Card from "../../../doctor/components/card/Card"; // adjust the import path as needed
+import Card from "../../../common/components/card/Card"; // adjust the import path as needed
 
 export default function UserProfile() {
   // State variables for input fields

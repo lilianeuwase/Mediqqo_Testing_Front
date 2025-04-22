@@ -33,8 +33,8 @@ import {
 import { ChevronLeftIcon, ChevronRightIcon } from "@chakra-ui/icons";
 
 // Custom components
-import Card from "../../../../doctor/components/card/Card";
-import { SearchBar } from "../../../../doctor/components/navbar/searchBar/SearchBar";
+import Card from "../../../../common/components/card/Card";
+import { SearchBar } from "../../../../common/components/navbar/searchBar/SearchBar";
 // Import the getUser function for row click
 import { getUser } from "../../../../../../DBConnection/UserData";
 // Import the UserProfile component to show in the drawer
