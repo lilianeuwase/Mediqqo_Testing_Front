@@ -525,11 +525,12 @@ const DiabResultCalculate = ({ patient }) => {
       {error && <ErrorPopup message={error} onClose={dismissError} />}
       <Button
         mt="4"
-        colorScheme="red"
+        colorScheme="yellow"
         onClick={processResults}
         isLoading={processing}
         loadingText="Processing Results"
         disabled={!apiHost}
+        textColor="white"
       >
         Load Results
       </Button>

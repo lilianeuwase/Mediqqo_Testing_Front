@@ -1,1 +1,1 @@
-http://localhost:3001
+https://mediqo-api.onrender.com

@@ -29,12 +29,15 @@ export default function UserProfile() {
   const [phone_number, setPhoneNumber] = useState("");
   const [speciality, setSpeciality] = useState("");
   const [hospital, setHospital] = useState("");
+  const [pharmacyName, setPharmacyName] = useState("");
+  const [pharmacyLocation, setPharmacyLocation] = useState("");
   const [password, setPassword] = useState("");
   const [confirmPassword, setConfirmPassword] = useState("");
   const [userType, setUserType] = useState("");
   const [secretKey, setSecretKey] = useState("");
   // New state for head shot file (base64 string)
   const [headShot, setHeadShot] = useState(null);
+
 
   // State for error messages
   const [errors, setErrors] = useState({});
@@ -48,12 +51,13 @@ export default function UserProfile() {
 
   // Allowed user types
   const allowedUserTypes = [
+    "Administrator",
     "Physician",
     "Doctor",
-    "Super Admin",
-    "Admin",
-    "Lab Technician",
+    "Clinician",
     "Nurse",
+    "Laboratory Technician",
+    "Receptionist",
     "Pharmacist",
   ];
 
@@ -83,14 +87,25 @@ export default function UserProfile() {
       newErrors.userType = "Invalid user type selected";
 
     // For Admin user type, require a valid secret key
-    if (userType === "Admin" && secretKey !== "Mediqo") {
-      newErrors.secretKey = "Invalid Admin Secret Key";
+    if (userType === "Administrator" && secretKey !== "Mediqo") {
+      newErrors.secretKey = "Invalid Administrator Secret Key";
     }
 
     // For specific user types, Speciality and Hospital are required
-    if (["Physician", "Doctor", "Lab Technician", "Nurse"].includes(userType)) {
+    if (["Physician", "Doctor", "Clinician"].includes(userType)) {
       if (!speciality.trim()) newErrors.speciality = "Speciality is required";
       if (!hospital.trim()) newErrors.hospital = "Hospital is required";
+    }
+
+        // For specific user types, Speciality and Hospital are required
+        if (["Nurse", "Laboratory Technician", "Receptionist"].includes(userType)) {
+          if (!hospital.trim()) newErrors.hospital = "Hospital is required";
+        }
+
+            // For specific user types, Speciality and Hospital are required
+    if (["Pharmacist"].includes(userType)) {
+      if (!pharmacyName.trim()) newErrors.pharmacyName = "Pharmacy name is required";
+      if (!pharmacyLocation.trim()) newErrors.pharmacyLocation = "Pharmacy Location is required";
     }
 
     return newErrors;
@@ -136,6 +151,8 @@ export default function UserProfile() {
       phone_number,
       speciality,
       hospital,
+      pharmacyName,
+      pharmacyLocation,
       password,
       userType,
       todayDate,
@@ -159,6 +176,8 @@ export default function UserProfile() {
         phone_number,
         speciality,
         hospital,
+        pharmacyName,
+        pharmacyLocation,
         password,
         userType,
         registerDate: todayDate,
@@ -361,10 +380,14 @@ export default function UserProfile() {
             </FormControl>
 
             {/* Secret Key for Admin/Super Admin */}
-            {(userType === "Admin" || userType === "Super Admin") && (
+            {(userType === "Administrator" ||
+              userType === "Super Administrator") && (
               <FormControl isInvalid={errors.secretKey}>
                 <FormLabel fontSize="sm" fontWeight="500" color={textColor}>
                   Secret Key
+                  <Text as="span" color="red">
+                    *
+                  </Text>
                 </FormLabel>
                 <Input
                   type="text"
@@ -382,9 +405,10 @@ export default function UserProfile() {
           {[
             "Physician",
             "Doctor",
-            "Lab Technician",
+            "Clinician",
             "Nurse",
-            "Pharmacist",
+            "Laboratory Technician",
+            "Receptionist",
           ].includes(userType) && (
             <SimpleGrid columns={{ base: 1, md: 2 }} gap="20px" mb="16px">
               <FormControl isInvalid={errors.speciality}>
@@ -404,6 +428,9 @@ export default function UserProfile() {
               <FormControl isInvalid={errors.hospital}>
                 <FormLabel fontSize="sm" fontWeight="500" color={textColor}>
                   Hospital
+                  <Text as="span" color="red">
+                    *
+                  </Text>
                 </FormLabel>
                 <Input
                   type="text"
@@ -413,6 +440,46 @@ export default function UserProfile() {
                 />
                 {errors.hospital && (
                   <FormErrorMessage>{errors.hospital}</FormErrorMessage>
+                )}
+              </FormControl>
+            </SimpleGrid>
+          )}
+
+          {/* Pharmacy details for pharmacist */}
+          {["Pharmacist"].includes(userType) && (
+            <SimpleGrid columns={{ base: 1, md: 2 }} gap="20px" mb="16px">
+              <FormControl isInvalid={errors.pharmacyName}>
+                <FormLabel fontSize="sm" fontWeight="500" color={textColor}>
+                  Pharmacy Name
+                  <Text as="span" color="red">
+                    *
+                  </Text>
+                </FormLabel>
+                <Input
+                  type="text"
+                  placeholder="Pharmacy Name"
+                  variant="flushed"
+                  onChange={(e) => setPharmacyName(e.target.value)}
+                />
+                {errors.pharmacyName && (
+                  <FormErrorMessage>{errors.pharmacyName}</FormErrorMessage>
+                )}
+              </FormControl>
+              <FormControl isInvalid={errors.pharmacyLocation}>
+                <FormLabel fontSize="sm" fontWeight="500" color={textColor}>
+                  Pharmacy Location
+                  <Text as="span" color="red">
+                    *
+                  </Text>
+                </FormLabel>
+                <Input
+                  type="text"
+                  placeholder="Pharmacy Location"
+                  variant="flushed"
+                  onChange={(e) => setPharmacyLocation(e.target.value)}
+                />
+                {errors.pharmacyLocation && (
+                  <FormErrorMessage>{errors.pharmacyLocation}</FormErrorMessage>
                 )}
               </FormControl>
             </SimpleGrid>

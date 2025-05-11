@@ -29,7 +29,7 @@ import {
 } from "@chakra-ui/react";
 import Card from "../../../../../common/components/card/Card";
 import { SearchBar } from "../../../../../common/components/navbar/searchBar/SearchBar";
-import PatientLabResults from "../../../new/patientLabResults"; // Modal for adding new lab results
+import AddLabResults from "./addLabResults";
 import {
   createColumnHelper,
   flexRender,
@@ -906,7 +906,7 @@ export default function LabResultTable({ patient }) {
           </Button>
         </Flex>
       </Flex>
-      <PatientLabResults isOpen={isOpen} onClose={onClose} />
+      <AddLabResults isOpen={isOpen} onClose={onClose} />
       {isEditModalOpen && (
         <EditLabResultsModal
           isOpen={isEditModalOpen}

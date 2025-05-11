@@ -24,9 +24,9 @@ import {
   Th,
   Td,
 } from "@chakra-ui/react";
-import { DiabPatientData } from "../../../../../DBConnection/DiabetesPatients";
+import { DiabPatientData } from "../../../../../../../DBConnection/DiabetesPatients";
 
-function PatientLabResults({ isOpen, onClose }) {
+function AddLabResults({ isOpen, onClose }) {
   const textColorPrimary = useColorModeValue("secondaryGray.900", "white");
   const textColor = useColorModeValue("navy.700", "white");
 
@@ -373,4 +373,4 @@ function PatientLabResults({ isOpen, onClose }) {
   );
 }
 
-export default PatientLabResults;
+export default AddLabResults;

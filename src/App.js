@@ -17,6 +17,7 @@ import HomePage from "./components/landingPage";
 
 //Customized Links
 import SignInCentered from "./components/dashBoards/signIn";
+import View from "./components/dashBoards/view";
 
 
 function App() {
@@ -60,6 +61,12 @@ function App() {
                 ) : (
                   <SignInCentered />
                 )
+              }
+            />
+               <Route
+              path="/view"
+              element={
+                <View/>
               }
             />
           </Routes>

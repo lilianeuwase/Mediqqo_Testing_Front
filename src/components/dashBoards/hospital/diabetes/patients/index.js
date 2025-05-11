@@ -23,13 +23,14 @@ import { DiabPatientData } from "../../../../../DBConnection/DiabetesPatients";
 // Import your components
 import ProfileCard from "./components/profileCard";
 import VitalsTable from "./components/vitalsTable";
-import AdditionalInfoTable from "./components/additionalInfoTable";
+import ConsultTable from "./components/consultTable.js";
 import ManagePatient from "./components/managePatient";
 import LabPanel from "./components/labPanel";
 import DiabResultTable from "./components/result/diabResultTable";
 import DiabPatientAppointment from "./components/actions/diabAppointment";
 import DiabResultCalculate from "./components/result/diabResultCalculate";
 import PatientAllInfo from "./components/patientAllInfo";
+import ExitInfoTable from "./components/exitInfoTable";
 
 export default function DaibPatientInfo() {
   const [isAppointmentOpen, setIsAppointmentOpen] = useState(false);
@@ -131,9 +132,9 @@ export default function DaibPatientInfo() {
           </Tab>
           <Tab
             _selected={{
-              color: "red.700",
+              color: "yellow.400",
               fontWeight: "bold",
-              borderBottomColor: "red.700",
+              borderBottomColor: "yellow.400",
             }}
           >
             Results & Medication
@@ -146,6 +147,15 @@ export default function DaibPatientInfo() {
             }}
           >
             Full History
+          </Tab>
+          <Tab
+            _selected={{
+              color: "red.600",
+              fontWeight: "bold",
+              borderBottomColor: "red.600",
+            }}
+          >
+            Exit Info
           </Tab>
         </TabList>
         <TabPanels>
@@ -172,7 +182,7 @@ export default function DaibPatientInfo() {
 
           {/* Tab 3: Consultation */}
           <TabPanel p="20px" borderRadius="md" boxShadow="sm">
-            <AdditionalInfoTable patient={patient} />
+            <ConsultTable patient={patient} />
           </TabPanel>
 
           {/* Tab 4: Laboratory */}
@@ -192,6 +202,11 @@ export default function DaibPatientInfo() {
           {/* Tab 6: Full History */}
           <TabPanel p="20px" borderRadius="md" boxShadow="sm">
             <PatientAllInfo patient={patient} />
+          </TabPanel>
+
+          {/* Tab 7: Exit Information */}
+          <TabPanel p="20px" borderRadius="md" boxShadow="sm">
+            <ExitInfoTable patient={patient} />
           </TabPanel>
         </TabPanels>
       </Tabs>

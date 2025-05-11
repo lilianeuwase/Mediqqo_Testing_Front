@@ -52,10 +52,10 @@ export function useAllUsers() {
         }
         setCurrentUser(data.data);
         if (data.data.userType !== "Physician") {
-          setError("Unauthorized: Admin access required");
+          setError("Unauthorized: Administrator access required");
           Swal.fire({
             title: "Unauthorized",
-            text: "Admin access is required to view users.",
+            text: "Administrator access is required to view users.",
             icon: "error",
             confirmButtonText: "OK",
           });
@@ -87,8 +87,6 @@ export function useAllUsers() {
   return { usersTable, currentPage, setCurrentPage, limit, setLimit, error };
 }
 
-
-
 // ---------------------------
 // Retrieve a User Function
 // ---------------------------
@@ -98,21 +96,18 @@ export function getUser(identifier) {
     .then((res) => res.text())
     .then((host) => {
       const apiHost = host.trim();
-      fetch(
-        `${apiHost}/getUser`,
-        {
-          method: "POST",
-          crossDomain: true,
-          headers: {
-            "Content-Type": "application/json",
-            Accept: "application/json",
-            "Access-Control-Allow-Origin": "*",
-          },
-          body: JSON.stringify({
-            identifier,
-          }),
-        }
-      )
+      fetch(`${apiHost}/getUser`, {
+        method: "POST",
+        crossDomain: true,
+        headers: {
+          "Content-Type": "application/json",
+          Accept: "application/json",
+          "Access-Control-Allow-Origin": "*",
+        },
+        body: JSON.stringify({
+          identifier,
+        }),
+      })
         .then((res) => res.json())
         .then((data) => {
           console.log(data, "userRegister");
@@ -201,6 +196,7 @@ export function UserData() {
   const [doctor, setDoctor] = useState(false);
   const [nurse, setNurse] = useState(false);
   const [labtech, setLabtech] = useState(false);
+  const [receptionist, setReceptionist] = useState(false);
   const [pharmacist, setPharmacist] = useState(false);
   const [apiHost, setApiHost] = useState("");
 
@@ -253,21 +249,25 @@ export function UserData() {
 
         // Set user type states based on retrieved userType
         switch (data.data.userType) {
-          case "Super Admin":
+          case "Super Administrator":
             setSuperadmin(true);
             break;
-          case "Admin":
+          case "Administrator":
             setAdmin(true);
             break;
           case "Doctor":
           case "Physician":
+          case "Clinician":
             setDoctor(true);
             break;
           case "Nurse":
             setNurse(true);
             break;
-          case "Lab Technician":
+          case "Laboratory Technician":
             setLabtech(true);
+            break;
+          case "Receptionist":
+            setReceptionist(true);
             break;
           case "Pharmacist":
             setPharmacist(true);

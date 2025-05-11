@@ -16,7 +16,7 @@ import {
   Input,
 } from "@chakra-ui/react";
 // Import patient data (same as in PatientAdditionalInfo)
-import { DiabPatientData } from "../../../../../DBConnection/DiabetesPatients";
+import { DiabPatientData } from "../../../../../../../DBConnection/DiabetesPatients";
 
 export function LabExamModal({
   isOpen,
@@ -110,23 +110,22 @@ export function LabExamModal({
       .map((lab) => lab.trim())
       .filter((lab) => lab !== "");
     // Combine and remove duplicates.
-    const combinedExams = Array.from(new Set([...selectedExams, ...customLabsArray]));
+    const combinedExams = Array.from(
+      new Set([...selectedExams, ...customLabsArray])
+    );
 
     const todayDate = formatDate(new Date());
 
     try {
-      const response = await fetch(
-        `${apiHost}/registerDiabRequestedLab`,
-        {
-          method: "POST",
-          headers: { "Content-Type": "application/json" },
-          body: JSON.stringify({
-            phone_number: patientPhone,
-            requestLabsDates: todayDate,
-            requestLab: combinedExams,
-          }),
-        }
-      );
+      const response = await fetch(`${apiHost}/registerDiabRequestedLab`, {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({
+          phone_number: patientPhone,
+          requestLabsDates: todayDate,
+          requestLab: combinedExams,
+        }),
+      });
       const result = await response.json();
       if (result.status === "ok") {
         setIsSuccess(true);
@@ -136,13 +135,17 @@ export function LabExamModal({
       } else {
         setIsSuccess(false);
         setNotificationTitle("Error");
-        setNotificationMessage("Error registering requested labs: " + result.error);
+        setNotificationMessage(
+          "Error registering requested labs: " + result.error
+        );
         setNotificationOpen(true);
       }
     } catch (error) {
       setIsSuccess(false);
       setNotificationTitle("Error");
-      setNotificationMessage("Error registering requested labs: " + error.message);
+      setNotificationMessage(
+        "Error registering requested labs: " + error.message
+      );
       setNotificationOpen(true);
     }
   };
@@ -245,7 +248,8 @@ export function RequestLabTests({ isOpen, onClose }) {
         <ModalCloseButton />
         <ModalBody>
           <Text>
-            A corresponding vitals session is required before requesting lab tests.
+            A corresponding vitals session is required before requesting lab
+            tests.
           </Text>
         </ModalBody>
         <ModalFooter>

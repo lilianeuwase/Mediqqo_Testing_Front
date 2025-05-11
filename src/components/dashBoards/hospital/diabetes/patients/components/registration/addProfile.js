@@ -12,6 +12,7 @@ import {
   FormControl,
   FormLabel,
   Input,
+  Checkbox,
   FormErrorMessage,
   Modal,
   ModalOverlay,
@@ -22,10 +23,10 @@ import {
   ModalFooter,
 } from "@chakra-ui/react";
 // Custom components
-import Card from "../../../common/components/card/Card";
-import { UserData } from "../../../../../DBConnection/UserData";
+import Card from "../../../../../common/components/card/Card";
+import { UserData } from "../../../../../../../DBConnection/UserData";
 
-function PatientProfile() {
+function AddProfile() {
   // ALL COUNTRIES
   const nonRwandaCountries = [
     "Afghanistan",
@@ -260,6 +261,12 @@ function PatientProfile() {
   // Load API host state
   const [apiHost, setApiHost] = useState("");
 
+  const [caregiverName, setCaregiverName] = useState("");
+  const [caregiverPhone, setCaregiverPhone] = useState("");
+  const [hbcpName, setHbcpName] = useState("");
+  const [hbcpPhone, setHbcpPhone] = useState("");
+  const [phoneOwnerChecked, setPhoneOwnerChecked] = useState(true); // true = belongs to patient
+
   // Helper: Calculate Age
   const calculateAge = (birthDateString) => {
     const today = new Date();
@@ -348,27 +355,27 @@ function PatientProfile() {
     const todayDate = formatDate(new Date());
 
     // Send profile data to the Profile API
-    fetch(
-      `${apiHost}/registerDiabPatientProfile`,
-      {
-        method: "POST",
-        headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({
-          fname,
-          lname,
-          DOB,
-          gender,
-          ID,
-          phone_number,
-          full_address: address,
-          age,
-          consultations: 1,
-          registerDate: todayDate,
-          doctor_name: [doctorName],
-          hospital: [hospitalName],
-        }),
-      }
-    )
+    fetch(`${apiHost}/registerDiabPatientProfile`, {
+      method: "POST",
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify({
+        fname,
+        lname,
+        DOB,
+        gender,
+        ID,
+        phone_raw: [phoneOwnerChecked ? "no" : "yes", phone_number],
+        phone_number: phone_number,
+        caregiver: caregiverName ? [caregiverName, caregiverPhone] : [],
+        hbcp: hbcpName ? [hbcpName, hbcpPhone] : [],
+        full_address: address,
+        age,
+        consCount: 1,
+        registerDate: todayDate,
+        doctor_name: [doctorName],
+        hospital: [hospitalName],
+      }),
+    })
       .then((res) => res.json())
       .then((data) => {
         if (data.status === "ok") {
@@ -417,7 +424,7 @@ function PatientProfile() {
                 fontSize="sm"
                 type="text"
                 mb="12px"
-                size="lg"
+                size="sm"
                 variant="flushed"
                 onChange={(e) => setFname(e.target.value)}
               />
@@ -443,7 +450,7 @@ function PatientProfile() {
                 fontSize="sm"
                 type="text"
                 mb="12px"
-                size="lg"
+                size="sm"
                 variant="flushed"
                 onChange={(e) => setLname(e.target.value)}
               />
@@ -469,7 +476,7 @@ function PatientProfile() {
                 fontSize="sm"
                 type="date"
                 mb="12px"
-                size="lg"
+                size="sm"
                 variant="flushed"
                 onChange={(e) => setDOB(e.target.value)}
               />
@@ -493,7 +500,7 @@ function PatientProfile() {
                 isRequired
                 fontSize="sm"
                 mb="12px"
-                size="lg"
+                size="sm"
                 variant="flushed"
                 onChange={(e) => setGender(e.target.value)}
               >
@@ -522,7 +529,7 @@ function PatientProfile() {
                 fontSize="sm"
                 type="text"
                 mb="12px"
-                size="lg"
+                size="sm"
                 variant="flushed"
                 onChange={(e) => setID(e.target.value)}
               />
@@ -536,23 +543,133 @@ function PatientProfile() {
                 fontSize="sm"
                 fontWeight="500"
                 color={textColor}
-                mb="4px"
               >
                 Phone Number<Text color="red">*</Text>
               </FormLabel>
+
+              <Checkbox
+                size="sm"
+                colorScheme="brand"
+                checked={phoneOwnerChecked}
+                onChange={(e) => setPhoneOwnerChecked(e.target.checked)}
+              >
+                Does not belongs to the patient
+              </Checkbox>
+
               <Input
                 value={phone_number}
                 fontSize="sm"
                 type="text"
                 mb="12px"
-                size="lg"
+                size="xs"
                 variant="flushed"
                 onChange={(e) => setPhone(e.target.value)}
               />
+              {/* Phone Ownership Checkbox */}
+
               {errors.phone_number && (
                 <FormErrorMessage>{errors.phone_number}</FormErrorMessage>
               )}
             </FormControl>
+            {/* Caregiver Name */}
+            <FormControl mb="12px">
+              <FormLabel
+                display="flex"
+                ms="4px"
+                fontSize="sm"
+                fontWeight="500"
+                color={textColor}
+                mb="4px"
+              >
+                Family Care-Giver Name
+              </FormLabel>
+              <Input
+                value={caregiverName}
+                fontSize="sm"
+                type="text"
+                mb="12px"
+                size="sm"
+                variant="flushed"
+                // placeholder="Enter Care-Giver Name"
+                onChange={(e) => setCaregiverName(e.target.value)}
+              />
+            </FormControl>
+
+            {/* Caregiver Phone (only if name entered) */}
+            {caregiverName && (
+              <FormControl mb="12px">
+                <FormLabel
+                  display="flex"
+                  ms="4px"
+                  fontSize="sm"
+                  fontWeight="500"
+                  color={textColor}
+                  mb="4px"
+                >
+                  Family Care-Giver Phone
+                </FormLabel>
+                <Input
+                  value={caregiverPhone}
+                  fontSize="sm"
+                  type="text"
+                  mb="12px"
+                  size="sm"
+                  variant="flushed"
+                  placeholder="Enter Family Care-Giver Phone Number"
+                  onChange={(e) => setCaregiverPhone(e.target.value)}
+                />
+              </FormControl>
+            )}
+
+            {/* HBCP Name */}
+            <FormControl mb="12px">
+              <FormLabel
+                display="flex"
+                ms="4px"
+                fontSize="sm"
+                fontWeight="500"
+                color={textColor}
+                mb="4px"
+              >
+                Home Based Care Practitioner (HBCP)
+              </FormLabel>
+              <Input
+                value={hbcpName}
+                fontSize="sm"
+                type="text"
+                mb="12px"
+                size="sm"
+                variant="flushed"
+                // placeholder="Enter HBCP Name"
+                onChange={(e) => setHbcpName(e.target.value)}
+              />
+            </FormControl>
+
+            {/* HBCP Phone (only if name entered) */}
+            {hbcpName && (
+              <FormControl mb="12px">
+                <FormLabel
+                  display="flex"
+                  ms="4px"
+                  fontSize="sm"
+                  fontWeight="500"
+                  color={textColor}
+                  mb="4px"
+                >
+                  HBCP Phone
+                </FormLabel>
+                <Input
+                  value={hbcpPhone}
+                  fontSize="sm"
+                  type="text"
+                  mb="12px"
+                  size="sm"
+                  variant="flushed"
+                  placeholder="Enter Home Based Care Practitioner Phone"
+                  onChange={(e) => setHbcpPhone(e.target.value)}
+                />
+              </FormControl>
+            )}
             {/* Residency */}
             <FormControl isInvalid={errors.isRwandan} mb="12px">
               <FormLabel
@@ -571,7 +688,7 @@ function PatientProfile() {
                 isRequired
                 fontSize="sm"
                 mb="12px"
-                size="lg"
+                size="sm"
                 variant="flushed"
                 onChange={(e) => {
                   setIsRwandan(e.target.value);
@@ -611,7 +728,7 @@ function PatientProfile() {
                     isRequired
                     fontSize="sm"
                     mb="12px"
-                    size="lg"
+                    size="sm"
                     variant="flushed"
                     onChange={(e) => {
                       const value = e.target.value;
@@ -650,7 +767,7 @@ function PatientProfile() {
                     isRequired
                     fontSize="sm"
                     mb="12px"
-                    size="lg"
+                    size="sm"
                     variant="flushed"
                     isDisabled={!selectedProvince}
                     onChange={(e) => setDistrict(e.target.value)}
@@ -719,7 +836,7 @@ function PatientProfile() {
                     fontSize="sm"
                     type="text"
                     mb="12px"
-                    size="lg"
+                    size="sm"
                     variant="flushed"
                     onChange={(e) => setSector(e.target.value)}
                   />
@@ -744,7 +861,7 @@ function PatientProfile() {
                     fontSize="sm"
                     type="text"
                     mb="12px"
-                    size="lg"
+                    size="sm"
                     variant="flushed"
                     onChange={(e) => setCell(e.target.value)}
                   />
@@ -769,7 +886,7 @@ function PatientProfile() {
                     fontSize="sm"
                     type="text"
                     mb="12px"
-                    size="lg"
+                    size="sm"
                     variant="flushed"
                     onChange={(e) => setVillage(e.target.value)}
                   />
@@ -796,7 +913,7 @@ function PatientProfile() {
                   isRequired
                   fontSize="sm"
                   mb="12px"
-                  size="lg"
+                  size="sm"
                   variant="flushed"
                   onChange={(e) => setCountry(e.target.value)}
                 >
@@ -856,4 +973,4 @@ function PatientProfile() {
   );
 }
 
-export default PatientProfile;
+export default AddProfile;

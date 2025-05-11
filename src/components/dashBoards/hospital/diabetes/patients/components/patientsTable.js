@@ -36,7 +36,7 @@ import Card from "../../../../common/components/card/Card";
 import { SearchBar } from "../../../../common/components/navbar/searchBar/SearchBar";
 // Import the getDiabPatient function for row click
 import { getDiabPatient } from "../../../../../../DBConnection/DiabetesPatients";
-import PatientProfile from "../../../diabetes/new/patientProfile";
+import AddProfile from "./registration/addProfile";
 
 // Import the PatientProfile component to show in the drawer
 
@@ -158,8 +158,8 @@ export default function PatientsTable(props) {
         </Flex>
       ),
     }),
-    columnHelper.accessor("consultations", {
-      id: "consultations",
+    columnHelper.accessor("consCount", {
+      id: "consCount",
       header: () => (
         <Text
           justifyContent="space-between"
@@ -415,7 +415,7 @@ export default function PatientsTable(props) {
             Patient Registration / Diabetes
           </DrawerHeader>
           <DrawerBody>
-            <PatientProfile />
+            <AddProfile />
           </DrawerBody>
         </DrawerContent>
       </Drawer>
